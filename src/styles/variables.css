@@ -1,0 +1,166 @@
+/* ============================================
+   DESIGN SYSTEM — CSS VARIABLES
+   Tamil Islamic Knowledge Platform
+   ============================================ */
+
+:root {
+  /* --- COLORS: LIGHT MODE --- */
+  --color-bg-primary: #faf8f5;
+  --color-bg-secondary: #f3f0eb;
+  --color-bg-tertiary: #ede9e2;
+  --color-bg-card: #ffffff;
+  --color-bg-card-hover: #f9f7f4;
+
+  --color-primary: #1a6b3a;
+  --color-primary-light: #2d8a52;
+  --color-primary-dark: #124d2b;
+  --color-primary-subtle: #e8f4ed;
+
+  --color-gold: #c8973a;
+  --color-gold-light: #e8b96a;
+  --color-gold-subtle: #fdf3e3;
+
+  --color-text-primary: #1c1c1e;
+  --color-text-secondary: #4a4a4a;
+  --color-text-tertiary: #6b6b6b;
+  --color-text-muted: #9a9a9a;
+  --color-text-inverse: #ffffff;
+
+  --color-border: #e5e0d8;
+  --color-border-light: #eee9e0;
+  --color-border-focus: #1a6b3a;
+
+  --color-success: #1a6b3a;
+  --color-warning: #c8973a;
+  --color-error: #c0392b;
+  --color-info: #2980b9;
+
+  --color-sahih: #1a6b3a;
+  --color-hasan: #2980b9;
+  --color-daif: #c0392b;
+  --color-unknown: #6b6b6b;
+
+  /* --- TYPOGRAPHY --- */
+  --font-primary: 'Inter', 'Noto Sans Tamil', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-arabic: 'Amiri', 'Scheherazade New', 'Traditional Arabic', serif;
+  --font-tamil: 'Noto Sans Tamil', 'Latha', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.0625rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.625;
+  --leading-loose: 2;
+
+  /* --- SPACING --- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+  --space-24: 6rem;
+
+  /* --- LAYOUT --- */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1440px;
+
+  /* --- BORDERS --- */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  --border-width: 1px;
+  --border-width-md: 1.5px;
+
+  /* --- SHADOWS --- */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.05);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.05);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.10), 0 4px 12px rgba(0,0,0,0.06);
+  --shadow-xl: 0 20px 60px rgba(0,0,0,0.12);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.06), 0 2px 8px rgba(0,0,0,0.04);
+  --shadow-card-hover: 0 4px 20px rgba(0,0,0,0.10);
+
+  /* --- TRANSITIONS --- */
+  --transition-fast: 120ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 320ms ease;
+  --transition-page: 240ms ease;
+
+  /* --- Z-INDEX --- */
+  --z-base: 0;
+  --z-raised: 10;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-overlay: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  /* --- NAVBAR HEIGHT --- */
+  --navbar-height: 64px;
+  --bottom-nav-height: 64px;
+}
+
+/* ============================================
+   DARK MODE OVERRIDES
+   ============================================ */
+[data-theme="dark"] {
+  --color-bg-primary: #0f1210;
+  --color-bg-secondary: #151a17;
+  --color-bg-tertiary: #1c2420;
+  --color-bg-card: #1a2119;
+  --color-bg-card-hover: #1f2820;
+
+  --color-primary: #3dab68;
+  --color-primary-light: #4ec47c;
+  --color-primary-dark: #2d8a52;
+  --color-primary-subtle: #1a2e20;
+
+  --color-gold: #e8b96a;
+  --color-gold-light: #f0ca8a;
+  --color-gold-subtle: #2a2010;
+
+  --color-text-primary: #f0ede8;
+  --color-text-secondary: #c4bfb8;
+  --color-text-tertiary: #9a9590;
+  --color-text-muted: #6a6560;
+  --color-text-inverse: #0f1210;
+
+  --color-border: #2a3028;
+  --color-border-light: #232e25;
+  --color-border-focus: #3dab68;
+
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.3), 0 1px 3px rgba(0,0,0,0.2);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.35), 0 2px 6px rgba(0,0,0,0.2);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.25);
+  --shadow-card: 0 1px 4px rgba(0,0,0,0.3), 0 2px 8px rgba(0,0,0,0.2);
+  --shadow-card-hover: 0 4px 20px rgba(0,0,0,0.5);
+}

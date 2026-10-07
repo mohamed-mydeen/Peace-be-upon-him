@@ -1,0 +1,253 @@
+/* Dhikr Page Styles */
+
+.dhikr-header-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  border-radius: var(--radius-full);
+  margin-bottom: var(--space-4);
+}
+
+/* Sessions */
+.dhikr-sessions {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
+}
+
+@media (min-width: 640px) {
+  .dhikr-sessions { grid-template-columns: repeat(4, 1fr); }
+}
+
+.dhikr-session-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-3);
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dhikr-session-btn:hover {
+  background: var(--color-bg-secondary);
+}
+
+.dhikr-session-btn.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.ds-name {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+}
+
+.ds-tamil {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+
+.dhikr-session-btn.active .ds-name,
+.dhikr-session-btn.active .ds-tamil {
+  color: #fff;
+}
+
+/* Progress bar */
+.dhikr-progress-bar {
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  margin-bottom: var(--space-6);
+  box-shadow: var(--shadow-xs);
+}
+
+.dhikr-progress-text {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
+}
+
+.dhikr-progress-track {
+  height: 8px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.dhikr-progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  transition: width 0.3s ease;
+}
+
+.dhikr-completed-msg {
+  font-size: var(--text-sm);
+  color: var(--color-primary);
+  font-weight: var(--weight-medium);
+  margin-top: var(--space-3);
+  text-align: center;
+}
+
+/* Items */
+.dhikr-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin-bottom: var(--space-10);
+}
+
+.dhikr-item {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-6);
+  border: var(--border-width-md) solid var(--color-border);
+  transition: all var(--transition-base);
+}
+
+@media (min-width: 640px) {
+  .dhikr-item {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+.dhikr-item.done {
+  border-color: var(--color-primary);
+  background: var(--color-primary-subtle);
+}
+
+.dhikr-item-content {
+  flex: 1;
+}
+
+.dhikr-arabic {
+  color: var(--color-primary);
+  margin-bottom: var(--space-2);
+  text-align: right;
+  line-height: 1.8;
+}
+
+.dhikr-translit {
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-2);
+}
+
+.dhikr-tamil {
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  line-height: var(--leading-relaxed);
+}
+
+.dhikr-note {
+  font-size: 11px;
+  color: var(--color-text-muted);
+  margin-top: var(--space-3);
+  padding-top: var(--space-2);
+  border-top: var(--border-width) dashed var(--color-border);
+}
+
+/* Counter Area */
+.dhikr-counter-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--color-bg-secondary);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  min-width: 140px;
+}
+
+@media (min-width: 640px) {
+  .dhikr-item.done .dhikr-counter-area {
+    background: rgba(255,255,255,0.5);
+  }
+}
+
+.dhikr-count-display {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.current-count {
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  color: var(--color-text-primary);
+  line-height: 1;
+}
+
+.target-count {
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+.dhikr-controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dhikr-tap-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-full);
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.1s;
+  box-shadow: 0 4px 12px rgba(26,107,58,0.3);
+}
+
+.dhikr-tap-btn:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.dhikr-tap-btn.done {
+  background: var(--color-success);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  box-shadow: none;
+  cursor: default;
+}
+
+.dhikr-reset-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--color-text-muted);
+  border: var(--border-width) solid var(--color-border);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dhikr-reset-btn:hover {
+  background: var(--color-bg-card);
+  color: var(--color-text-primary);
+}
