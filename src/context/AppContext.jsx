@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { useAuth } from './AuthContext';
+import { requireSupabase } from '../lib/supabase';
 
 // ============================================
 // THEME CONTEXT
@@ -35,14 +37,11 @@ export const useTheme = () => {
 // ============================================
 const BookmarkContext = createContext(null);
 
-function loadBookmarks() {
-  try {
-    return JSON.parse(localStorage.getItem('bookmarks') || '[]');
-  } catch { return []; }
-}
-
 export function BookmarkProvider({ children }) {
-  const [bookmarks, setBookmarks] = useState(loadBookmarks);
+  const { user } = useAuth();
+  const [bookmarks, setBookmarks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [toastMsg, setToastMsg] = useState('');
   const toastTimer = useRef(null);
 
@@ -52,35 +51,103 @@ export function BookmarkProvider({ children }) {
     toastTimer.current = setTimeout(() => setToastMsg(''), 2500);
   }, []);
 
-  const save = useCallback(() => {
-    localStorage.setItem('bookmarks', JSON.stringify(bookmarks));
-  }, [bookmarks]);
+  const load = useCallback(async () => {
+    if (!user) {
+      setBookmarks([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError('');
+    const client = requireSupabase();
+    const { data, error: queryError } = await client
+      .from('bookmarks')
+      .select('id, content_type, created_at, hadith:hadiths(id, hadith_number, arabic, tamil, english, source_reference, collection:hadith_collections(name)), ayah:quran_ayahs(id, surah_id, ayah_number, arabic, tamil, english), dua:duas(id, title, tamil_title, arabic, meaning_tamil, source_reference)')
+      .order('created_at', { ascending: false });
+    if (queryError) {
+      setError(queryError.message);
+      setLoading(false);
+      throw queryError;
+    }
+    setBookmarks((data || []).map((row) => {
+      const content = row.hadith || row.ayah || row.dua;
+      const type = row.content_type;
+      const contentId = content?.id;
+      const title = type === 'hadith'
+        ? `${content.collection?.name || 'Hadith'} #${content.hadith_number}`
+        : type === 'ayah'
+          ? `Quran ${content.surah_id}:${content.ayah_number}`
+          : content?.title || content?.tamil_title;
+      const subtitle = type === 'hadith'
+        ? content?.tamil || content?.english || content?.arabic
+        : type === 'ayah'
+          ? content?.english || content?.tamil || content?.arabic
+          : content?.meaning_tamil || content?.arabic;
+      const href = type === 'hadith'
+        ? `/hadith/${content.collection?.slug || ''}`
+        : type === 'ayah'
+          ? `/quran/${content.surah_id}#ayah-${content.ayah_number}`
+          : `/dua`;
+      return { id: contentId, bookmarkId: row.id, type, title, subtitle, href, savedAt: row.created_at };
+    }));
+    setLoading(false);
+  }, [user]);
 
-  useEffect(() => { save(); }, [bookmarks, save]);
+  useEffect(() => {
+    load().catch((loadError) => setError(loadError.message));
+  }, [load]);
 
   const isBookmarked = useCallback((type, id) =>
     bookmarks.some(b => b.type === type && b.id === String(id)), [bookmarks]);
 
-  const toggle = useCallback((item) => {
-    setBookmarks(prev => {
-      const exists = prev.some(b => b.type === item.type && b.id === String(item.id));
-      if (exists) {
-        showToast('Bookmark removed');
-        return prev.filter(b => !(b.type === item.type && b.id === String(item.id)));
-      } else {
-        showToast('Saved to library');
-        return [...prev, { ...item, id: String(item.id), savedAt: new Date().toISOString() }];
-      }
-    });
-  }, [showToast]);
+  const toggle = useCallback(async (item) => {
+    if (!user) {
+      showToast('Sign in to save items');
+      return;
+    }
+    const client = requireSupabase();
+    const existing = bookmarks.find(b => b.type === item.type && b.id === String(item.id));
+    const contentColumn = { hadith: 'hadith_id', ayah: 'ayah_id', dua: 'dua_id' }[item.type];
+    if (!contentColumn || !item.id) throw new Error('A valid saved content item is required.');
 
-  const remove = useCallback((type, id) => {
-    setBookmarks(prev => prev.filter(b => !(b.type === type && b.id === String(id))));
+    if (existing) {
+      const { error: deleteError } = await client.from('bookmarks').delete().eq('id', existing.bookmarkId);
+      if (deleteError) {
+        setError(deleteError.message);
+        showToast('Unable to remove bookmark');
+        throw deleteError;
+      }
+      showToast('Bookmark removed');
+    } else {
+      const { error: insertError } = await client.from('bookmarks').insert({
+        user_id: user.id,
+        content_type: item.type,
+        [contentColumn]: item.id,
+      });
+      if (insertError) {
+        setError(insertError.message);
+        showToast('Unable to save bookmark');
+        throw insertError;
+      }
+      showToast('Saved to library');
+    }
+    await load();
+  }, [bookmarks, load, showToast, user]);
+
+  const remove = useCallback(async (type, id) => {
+    const bookmark = bookmarks.find(b => b.type === type && b.id === String(id));
+    if (!bookmark) return;
+    const { error: deleteError } = await requireSupabase().from('bookmarks').delete().eq('id', bookmark.bookmarkId);
+    if (deleteError) {
+      setError(deleteError.message);
+      throw deleteError;
+    }
     showToast('Removed from library');
-  }, [showToast]);
+    await load();
+  }, [bookmarks, load, showToast]);
 
   return (
-    <BookmarkContext.Provider value={{ bookmarks, isBookmarked, toggle, remove }}>
+    <BookmarkContext.Provider value={{ bookmarks, isBookmarked, toggle, remove, loading, error, reload: load }}>
       {children}
       {toastMsg && (
         <div className="toast-container">
