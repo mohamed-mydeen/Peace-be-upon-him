@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Search, ArrowLeft, Bookmark, AlertCircle } from 'lucide-react';
-import { GRADES, getCollection, getCollections, getHadiths, getHadith, getHadithsForTopic, getTopics, getBooks, searchHadiths } from '../services/hadith';
+import { useState, useEffect, useCallback } from 'react';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
+import { Search, Filter, ArrowLeft, Bookmark, Share2, Copy, ChevronRight, BookOpen, AlertCircle } from 'lucide-react';
+import { COLLECTIONS, HADITH_CATEGORIES, GRADES, COLLECTION_BOOKS, getCollection, getHadiths, getHadith } from '../services/hadith';
 import { useBookmarks } from '../context/AppContext';
 import './Hadith.css';
 
@@ -14,21 +14,6 @@ function GradeBadge({ grade }) {
 
 //  Collection list 
 function CollectionList() {
-  const [collections, setCollections] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    Promise.all([getCollections(), getTopics()])
-      .then(([collectionRows, topicRows]) => {
-        setCollections(collectionRows);
-        setCategories(topicRows);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, []);
-
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container">
@@ -40,16 +25,11 @@ function CollectionList() {
         </div>
 
         {/* Collections grid */}
-        {error && <div className="empty-state"><p className="empty-state-desc">{error}</p></div>}
-        {!error && loading ? <div className="hadiths-list">{Array(3).fill(0).map((_, i) => <HadithSkeleton key={i} />)}</div> : null}
-        {!error && !loading && collections.length === 0 && (
-          <div className="empty-state"><p className="empty-state-title">No published collections yet</p><p className="empty-state-desc">Authentic collection records will appear here when an editor imports and publishes them.</p></div>
-        )}
         <div className="collections-grid">
-          {collections.map(col => (
-            <Link key={col.id} to={`/hadith/${col.slug}`} className="collection-card card card-hover">
+          {COLLECTIONS.map(col => (
+            <Link key={col.id} to={`/hadith/${col.id}`} className="collection-card card card-hover">
               <div className="collection-card-inner">
-                <div className="collection-arabic arabic-text" dir="rtl">{col.arabic_name || col.arabicName}</div>
+                <div className="collection-arabic arabic-text" dir="rtl">{col.arabicName}</div>
                 <h2 className="collection-name">{col.name}</h2>
                 <p className="collection-author">{col.author}</p>
                 <p className="collection-desc">{col.description}</p>
@@ -68,10 +48,10 @@ function CollectionList() {
           <p className="section-subtitle tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>எளிதாக கண்டறிய தமிழ் தலைப்புகள்</p>
         </div>
         <div className="categories-grid">
-          {categories.map(cat => (
+          {HADITH_CATEGORIES.map(cat => (
             <Link
               key={cat.id}
-              to={`/hadith/categories/${cat.slug}`}
+              to={`/hadith/categories/${cat.id}`}
               className="category-card"
               style={{ '--cat-color': cat.color }}
             >
@@ -88,38 +68,24 @@ function CollectionList() {
 
 //  Collection detail 
 function CollectionDetail({ collectionId }) {
-  const [col, setCol] = useState(null);
-  const [collectionLoading, setCollectionLoading] = useState(true);
+  const col = getCollection(collectionId);
   const [hadiths, setHadiths] = useState([]);
-  const [books, setBooks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
   const [activeTab, setActiveTab] = useState('hadiths'); // 'hadiths' | 'books'
+  const books = COLLECTION_BOOKS[collectionId] || [];
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
-
-  useEffect(() => {
-    setCollectionLoading(true);
-    getCollection(collectionId)
-      .then(async result => {
-        setCol(result);
-        if (result) setBooks(await getBooks(result.id));
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setCollectionLoading(false));
-  }, [collectionId]);
 
   useEffect(() => {
     if (!col) return;
     setLoading(true);
-    getHadiths(col.id, { page, limit: 20 })
-      .then(data => { setHadiths(data.hadiths || []); setTotalPages(data.totalPages); })
+    getHadiths(collectionId, { page, limit: 20 })
+      .then(data => setHadiths(data.hadiths || []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [col, page]);
+  }, [collectionId, page, col]);
 
-  if (collectionLoading) return <main className="page-wrapper"><div className="container"><div className="hadiths-list"><HadithSkeleton /></div></div></main>;
   if (!col) return (
     <main className="page-wrapper"><div className="container">
       <div className="empty-state"><p className="empty-state-title">Collection not found</p></div>
@@ -132,7 +98,7 @@ function CollectionDetail({ collectionId }) {
         <Link to="/hadith" className="back-link"><ArrowLeft size={16} /> Collections</Link>
 
         <div className="collection-detail-header">
-          <div className="coll-detail-arabic arabic-text" dir="rtl">{col.arabic_name || col.arabicName}</div>
+          <div className="coll-detail-arabic arabic-text" dir="rtl">{col.arabicName}</div>
           <h1 className="coll-detail-name">{col.name}</h1>
           <p className="coll-detail-author">{col.author}</p>
           <p className="coll-detail-desc">{col.description}</p>
@@ -159,7 +125,7 @@ function CollectionDetail({ collectionId }) {
         {activeTab === 'books' && books.length > 0 && (
           <div className="books-list">
             {books.map(book => (
-              <div key={book.id} className="book-row card">
+              <div key={book.number} className="book-row card">
                 <div className="book-number">{book.number}</div>
                 <div className="book-info">
                   <div className="book-name">{book.name}</div>
@@ -177,7 +143,7 @@ function CollectionDetail({ collectionId }) {
               <div className="hadith-error">
                 <AlertCircle size={18} />
                 <div>
-                  <p>Unable to load hadiths.</p>
+                  <p>Unable to load hadiths. The free API may be temporarily unavailable.</p>
                   <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: 4 }}>{error}</p>
                 </div>
               </div>
@@ -188,7 +154,7 @@ function CollectionDetail({ collectionId }) {
               : (
                 <div className="hadiths-list">
                   {hadiths.map((hadith, i) => {
-                    const bk = isBookmarked('hadith', hadith.id);
+                    const bk = isBookmarked('hadith', `${collectionId}-${hadith.number}`);
                     return (
                       <article key={hadith.number || i} className="hadith-card card">
                         <div className="hadith-card-top">
@@ -201,7 +167,7 @@ function CollectionDetail({ collectionId }) {
                               className={`btn-icon${bk ? ' active' : ''}`}
                               onClick={() => toggleBookmark({
                                 type: 'hadith',
-                                id: hadith.id,
+                                id: `${collectionId}-${hadith.number}`,
                                 title: `${col.name} #${hadith.number}`,
                                 subtitle: hadith.arab?.slice(0, 80),
                                 href: `/hadith/${collectionId}/${hadith.number}`,
@@ -238,11 +204,11 @@ function CollectionDetail({ collectionId }) {
             }
 
             {/* Pagination */}
-            {totalPages > 1 && <div className="pagination">
+            <div className="pagination">
               <button className="page-btn" disabled={page === 1} onClick={() => setPage(p => p - 1)}>‹ முந்தையது</button>
               <span className="page-btn active">{page} பக்கம்</span>
-              <button className="page-btn" disabled={page >= totalPages} onClick={() => setPage(p => p + 1)}>அடுத்தது ›</button>
-            </div>}
+              <button className="page-btn" onClick={() => setPage(p => p + 1)}>அடுத்தது ›</button>
+            </div>
           </>
         )}
 
@@ -267,23 +233,54 @@ function HadithSkeleton() {
 
 //  Category detail 
 function CategoryDetail({ categoryId }) {
-  const [cat, setCat] = useState(null);
+  const cat = HADITH_CATEGORIES.find(c => c.id === categoryId);
   const [hadiths, setHadiths] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
 
   useEffect(() => {
+    if (!cat) return;
     setLoading(true);
-    getTopics()
-      .then(async topics => {
-        const topic = topics.find(item => item.slug === categoryId);
-        setCat(topic || null);
-        setHadiths(topic ? await getHadithsForTopic(topic.id) : []);
+    // Fetch a large chunk of Bukhari to search through
+    getHadiths('bukhari', { page: 1, limit: 2000 })
+      .then(data => {
+        // Map categories to search keywords for English translation
+        const keywords = {
+          'iman': ['faith', 'believe in allah'],
+          'tawheed': ['worship allah', 'partner', 'alone'],
+          'salah': ['prayer', 'pray', 'prostrate', 'rakat'],
+          'quran': ['quran', 'recite', 'surah'],
+          'youth': ['youth', 'young', 'boy', 'girl', 'children'],
+          'parents': ['parents', 'mother', 'father', 'obey'],
+          'family': ['family', 'wife', 'husband', 'children'],
+          'marriage': ['marry', 'marriage', 'wife'],
+          'character': ['character', 'manners', 'polite', 'good'],
+          'tawbah': ['repent', 'forgive', 'sin'],
+          'sabr': ['patient', 'patience', 'endure'],
+          'ramadan': ['ramadan', 'fasting', 'fast'],
+          'dua': ['supplicate', 'invoke', 'dua'],
+          'rizq': ['provision', 'wealth', 'charity'],
+          'akhirah': ['hereafter', 'day of resurrection', 'judgment'],
+          'jannah': ['paradise', 'jannah', 'heaven'],
+          'charity': ['charity', 'sadaqa', 'wealth'],
+          'knowledge': ['knowledge', 'learn', 'scholar'],
+          'death': ['death', 'die', 'grave'],
+          'fasting': ['fasting', 'fast', 'ramadan'],
+          'anger': ['anger', 'angry', 'temper'],
+          'brotherhood': ['brother', 'muslim', 'help'],
+          'business': ['buy', 'sell', 'business', 'trade'],
+          'tawakkul': ['trust in allah', 'rely'],
+        }[categoryId] || [cat.name.toLowerCase()];
+
+        const results = (data.hadiths || []).filter(h => {
+          const text = h.translation?.toLowerCase() || '';
+          return keywords.some(k => text.includes(k));
+        }).slice(0, 15); // Show top 15 matches
+
+        setHadiths(results);
       })
-      .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [categoryId]);
+  }, [categoryId, cat]);
 
   if (!cat) return (
     <main className="page-wrapper"><div className="container">
@@ -299,10 +296,8 @@ function CategoryDetail({ categoryId }) {
           <div>
             <p className="category-page-icon">{cat.icon}</p>
             <h1 className="page-title">{cat.name}</h1>
-            <p className="page-description tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>{cat.tamil_name || cat.tamil}</p>
+            <p className="page-description tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>{cat.tamil}</p>
           </div>
-
-          {error && <div className="hadith-error"><AlertCircle size={18} />{error}</div>}
         </div>
 
         {loading ? (
@@ -310,7 +305,7 @@ function CategoryDetail({ categoryId }) {
         ) : hadiths.length > 0 ? (
           <div className="hadiths-list">
             {hadiths.map((hadith, i) => {
-              const bk = isBookmarked('hadith', hadith.id);
+              const bk = isBookmarked('hadith', `bukhari-${hadith.number}`);
               return (
                 <article key={hadith.number || i} className="hadith-card card">
                   <div className="hadith-card-top">
@@ -321,7 +316,7 @@ function CategoryDetail({ categoryId }) {
                         className={`btn-icon${bk ? ' active' : ''}`}
                         onClick={() => toggleBookmark({
                           type: 'hadith',
-                          id: hadith.id,
+                          id: `bukhari-${hadith.number}`,
                           title: `Sahih al-Bukhari #${hadith.number}`,
                           subtitle: hadith.arab?.slice(0, 80),
                           href: `/hadith/bukhari/${hadith.number}`,
@@ -368,34 +363,30 @@ function CategoryDetail({ categoryId }) {
 //  Hadith Search 
 function HadithSearch() {
   const [query, setQuery] = useState('');
-  const [collections, setCollections] = useState([]);
-  const [collection, setCollection] = useState('');
+  const [collection, setCollection] = useState('bukhari');
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
-  const [error, setError] = useState('');
 
-  useEffect(() => {
-    getCollections().then(rows => {
-      setCollections(rows);
-      setCollection(rows[0]?.id || '');
-    }).catch(e => setError(e.message));
-  }, []);
-
-  const doSearch = async () => {
+  const doSearch = useCallback(async () => {
     if (!query.trim() || !collection) return;
     setLoading(true);
     setSearched(true);
-    setError('');
     try {
-      const data = await searchHadiths(query, { collectionId: collection, page: 1, limit: 20 });
-      setResults(data.hadiths);
-    } catch (e) {
-      setError(e.message);
+      const data = await getHadiths(collection, { page: 1, limit: 50 });
+      const q = query.toLowerCase();
+      const filtered = (data.hadiths || []).filter(h =>
+        h.arab?.toLowerCase().includes(q) ||
+        h.id?.toLowerCase().includes(q) ||
+        String(h.number) === q
+      );
+      setResults(filtered);
+    } catch {
+      setResults([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [query, collection]);
 
   return (
     <main className="page-wrapper fade-in" id="main-content">
@@ -413,7 +404,7 @@ function HadithSearch() {
               className="hadith-collection-select"
               aria-label="Select collection"
             >
-              {collections.map(c => (
+              {COLLECTIONS.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
@@ -434,7 +425,7 @@ function HadithSearch() {
 
         {searched && !loading && (
           <p className="search-result-count">
-            {results.length} result{results.length !== 1 ? 's' : ''} in             {collections.find(c => c.id === collection)?.name}
+            {results.length} result{results.length !== 1 ? 's' : ''} in {COLLECTIONS.find(c => c.id === collection)?.name}
           </p>
         )}
 
@@ -448,7 +439,7 @@ function HadithSearch() {
               {h.arab && <p className="hadith-arabic arabic-text arabic-md" dir="rtl">{h.arab}</p>}
               {h.translation && <p className="hadith-translation tamil-text" style={{ marginTop: '0.5rem', lineHeight: 1.5, fontSize: '0.95rem', fontFamily: 'var(--font-tamil)' }}>{h.translation.substring(0, 150)}...</p>}
               <div className="hadith-ref">
-                <span>{collections.find(c => c.id === collection)?.name}</span>
+                <span>{COLLECTIONS.find(c => c.id === collection)?.name}</span>
                 <span className="dot">·</span>
                 <span>#{h.number}</span>
               </div>
@@ -463,7 +454,6 @@ function HadithSearch() {
             <p className="empty-state-desc tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>வேறு வார்த்தைகளில் தேட முயற்சிக்கவும் அல்லது வேறு தொகுப்பை தேர்வு செய்யவும்</p>
           </div>
         )}
-        {error && <div className="hadith-error"><AlertCircle size={18} />{error}</div>}
       </div>
     </main>
   );
@@ -475,54 +465,8 @@ export function HadithCollection() {
   const { id } = useParams();
   return <CollectionDetail collectionId={id} />;
 }
-function HadithDetail() {
-  const { id: collectionSlug, number } = useParams();
-  const [item, setItem] = useState(null);
-  const [collection, setCollection] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
-
-  useEffect(() => {
-    Promise.all([getCollection(collectionSlug), getHadith(collectionSlug, number)])
-      .then(([collectionRow, hadith]) => {
-        setCollection(collectionRow);
-        setItem(hadith);
-      })
-      .catch(e => setError(e.message))
-      .finally(() => setLoading(false));
-  }, [collectionSlug, number]);
-
-  if (loading) return <main className="page-wrapper"><div className="container"><HadithSkeleton /></div></main>;
-  if (error || !item) return <main className="page-wrapper"><div className="container"><div className="empty-state"><p className="empty-state-title">{error || 'Hadith not found'}</p></div></div></main>;
-
-  const bookmarked = isBookmarked('hadith', item.id);
-  return (
-    <main className="page-wrapper fade-in" id="main-content">
-      <div className="container">
-        <Link to={`/hadith/${collectionSlug}`} className="back-link"><ArrowLeft size={16} /> {collection?.name}</Link>
-        <article className="hadith-card card">
-          <div className="hadith-card-top">
-            <span className="hadith-num-badge">#{item.number}</span>
-            <button className={`btn-icon${bookmarked ? ' active' : ''}`} onClick={() => toggleBookmark({
-              type: 'hadith', id: item.id, title: `${collection?.name} #${item.number}`,
-              subtitle: item.arab, href: `/hadith/${collectionSlug}/${number}`,
-            })} aria-label={bookmarked ? 'Remove bookmark' : 'Save hadith'}>
-              <Bookmark size={15} fill={bookmarked ? 'currentColor' : 'none'} />
-            </button>
-          </div>
-          {item.arab && <p className="hadith-arabic arabic-text arabic-md" dir="rtl">{item.arab}</p>}
-          {item.translation && <p className="hadith-translation tamil-text">{item.translation}</p>}
-          {item.narrator && <p>{item.narrator}</p>}
-          <div className="hadith-ref">{item.source_reference}</div>
-        </article>
-      </div>
-    </main>
-  );
-}
 export function HadithCategoryDetail() {
   const { id } = useParams();
   return <CategoryDetail categoryId={id} />;
 }
-export function HadithItemDetail() { return <HadithDetail />; }
 export function HadithSearchPage() { return <HadithSearch />; }

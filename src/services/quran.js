@@ -1,120 +1,76 @@
-import { requireSupabase } from '../lib/supabase';
+// ============================================
+// QURAN SERVICE
+// Uses api.quran.com (free, no key needed)
+// ============================================
 
-const PAGE_SIZE = 10;
+const BASE = 'https://api.quran.com/api/v4';
 
-function plainText(value) {
-  return value?.replace(/<[^>]*>/g, '') || '';
+const cache = new Map();
+
+async function fetchWithCache(url) {
+  if (cache.has(url)) return cache.get(url);
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`Quran API error: ${res.status}`);
+  const data = await res.json();
+  cache.set(url, data);
+  return data;
 }
 
-function mapSurah(row) {
-  return {
-    ...row,
-    name_simple: row.name_transliteration,
-    name_arabic: row.name_arabic,
-    translated_name: { name: row.name_english || row.name_transliteration },
-  };
-}
-
-function mapAyah(row, surah) {
-  const verseKey = `${row.surah_id}:${row.ayah_number}`;
-  return {
-    ...row,
-    verse_key: verseKey,
-    verse_number: row.ayah_number,
-    text_uthmani: row.arabic,
-    translations: [
-      row.tamil && { resource_id: 133, text: plainText(row.tamil) },
-      row.english && { resource_id: 20, text: plainText(row.english) },
-    ].filter(Boolean),
-    surah: surah || null,
-  };
-}
-
+// Get all surahs with Tamil + English info
 export async function getSurahs() {
-  const { data, error } = await requireSupabase()
-    .from('quran_surahs')
-    .select('id, name_arabic, name_transliteration, name_english, revelation_place, verses_count')
-    .order('id')
-    .range(0, 113);
-  if (error) throw error;
-  return (data || []).map(mapSurah);
+  const data = await fetchWithCache(`${BASE}/chapters?language=en`);
+  return data.chapters || [];
 }
 
+// Get single surah info
 export async function getSurah(id) {
-  const { data, error } = await requireSupabase()
-    .from('quran_surahs')
-    .select('id, name_arabic, name_transliteration, name_english, revelation_place, verses_count')
-    .eq('id', Number(id))
-    .maybeSingle();
-  if (error) throw error;
-  return data ? mapSurah(data) : null;
+  const data = await fetchWithCache(`${BASE}/chapters/${id}?language=en`);
+  return data.chapter || null;
 }
 
+// Get ayahs for a surah with Arabic + Tamil translation
+// Tamil translation ID: 133 (Tamil - Abdul Hameed Baqavi)
+// English: 20 (Saheeh International)
 export async function getAyahs(surahId, { page = 1 } = {}) {
-  const start = (page - 1) * PAGE_SIZE;
-  const { data, count, error } = await requireSupabase()
-    .from('quran_ayahs')
-    .select('id, surah_id, ayah_number, arabic, tamil, english, source_reference, translation_source', { count: 'exact' })
-    .eq('surah_id', Number(surahId))
-    .order('ayah_number')
-    .range(start, start + PAGE_SIZE - 1);
-  if (error) throw error;
-  const total = count || 0;
+  const url = `${BASE}/verses/by_chapter/${surahId}?language=en&translations=20,133&fields=text_uthmani&page=${page}&per_page=10`;
+  const data = await fetchWithCache(url);
   return {
-    verses: (data || []).map(row => mapAyah(row)),
-    pagination: { current_page: page, total_pages: Math.ceil(total / PAGE_SIZE), total_records: total },
+    verses: data.verses || [],
+    pagination: data.pagination || {},
   };
 }
 
-export async function getAyah(surahId, ayahNumber) {
-  const { data, error } = await requireSupabase()
-    .from('quran_ayahs')
-    .select('id, surah_id, ayah_number, arabic, tamil, english, source_reference, translation_source')
-    .eq('surah_id', Number(surahId))
-    .eq('ayah_number', Number(ayahNumber))
-    .maybeSingle();
-  if (error) throw error;
-  return data ? mapAyah(data) : null;
+// Get single ayah
+export async function getAyah(surahId, ayahNum) {
+  const url = `${BASE}/verses/by_key/${surahId}:${ayahNum}?language=en&translations=20,133&fields=text_uthmani`;
+  const data = await fetchWithCache(url);
+  return data.verse || null;
 }
 
+// Search Quran
 export async function searchQuran(query, page = 1) {
-  const clean = query?.trim() || '';
-  if (clean.length < 2) return { results: [], pagination: {} };
-  const { data, error } = await requireSupabase().rpc('search_content', {
-    search_query: clean,
-    result_limit: 20,
-    result_offset: (page - 1) * 20,
-  });
-  if (error) throw error;
-  const matches = (data || []).filter(result => result.content_type === 'quran');
-  return {
-    results: matches.map(result => ({
-      id: result.content_id,
-      verse_key: result.title,
-      text: result.excerpt,
-      source_reference: result.source_reference,
-    })),
-    pagination: { current_page: page },
-    query: clean,
-  };
+  if (!query || query.trim().length < 2) return { results: [], pagination: {} };
+  const url = `${BASE}/search?q=${encodeURIComponent(query)}&language=en&page=${page}&size=20`;
+  try {
+    const data = await fetchWithCache(url);
+    return {
+      results: data.search?.results || [],
+      pagination: data.search?.pagination || {},
+      query,
+    };
+  } catch {
+    return { results: [], pagination: {}, query };
+  }
 }
 
-export async function recordReading(contentType, contentId) {
-  const client = requireSupabase();
-  const { data: { user }, error: userError } = await client.auth.getUser();
-  if (userError) throw userError;
-  if (!user) return;
-  const args = {
-    read_type: contentType,
-    read_hadith_id: contentType === 'hadith' ? contentId : null,
-    read_ayah_id: contentType === 'ayah' ? contentId : null,
-    read_dua_id: contentType === 'dua' ? contentId : null,
-  };
-  const { error } = await client.rpc('record_read', args);
-  if (error) throw error;
+// Get Juz info
+export async function getJuzList() {
+  const data = await fetchWithCache(`${BASE}/juzs`);
+  return data.juzs || [];
 }
 
+// Translation IDs reference
 export const TRANSLATIONS = {
-  tamil: { id: 133, name: 'Tamil translation', language: 'ta' },
-  english: { id: 20, name: 'English translation', language: 'en' },
+  tamil: { id: 133, name: 'Tamil — Abdul Hameed Baqavi', language: 'ta' },
+  english: { id: 20, name: 'Saheeh International', language: 'en' },
 };
