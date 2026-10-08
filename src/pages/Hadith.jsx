@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Search, Filter, ArrowLeft, Bookmark, Share2, Copy, ChevronRight, BookOpen, AlertCircle } from 'lucide-react';
-import { COLLECTIONS, HADITH_CATEGORIES, GRADES, COLLECTION_BOOKS, getCollection, getHadiths, getHadith } from '../services/hadith';
+import { COLLECTIONS, HADITH_CATEGORIES, GRADES, COLLECTION_BOOKS, getCollection, getHadiths, getHadithsByBook, getHadith } from '../services/hadith';
 import { useBookmarks } from '../context/AppContext';
 import './Hadith.css';
 
@@ -29,7 +29,7 @@ function CollectionList() {
           {COLLECTIONS.map(col => (
             <Link key={col.id} to={`/hadith/${col.id}`} className="collection-card card card-hover">
               <div className="collection-card-inner">
-                <div className="collection-arabic arabic-text" dir="rtl">{col.arabicName}</div>
+                <div className="collection-arabic arabic-text notranslate" dir="rtl" translate="no">{col.arabicName}</div>
                 <h2 className="collection-name">{col.name}</h2>
                 <p className="collection-author">{col.author}</p>
                 <p className="collection-desc">{col.description}</p>
@@ -73,18 +73,21 @@ function CollectionDetail({ collectionId }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [page, setPage] = useState(1);
-  const [activeTab, setActiveTab] = useState('hadiths'); // 'hadiths' | 'books'
   const books = COLLECTION_BOOKS[collectionId] || [];
+  const [activeTab, setActiveTab] = useState(books.length > 0 ? 'books' : 'hadiths'); // 'hadiths' | 'books'
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
+  const copyHadith = (h) => { navigator.clipboard.writeText(`[${h.id}] \n${h.arab}\n\n${h.translation}`); };
 
   useEffect(() => {
     if (!col) return;
+    if (activeTab === 'books') return; // Do not fetch full collection if just viewing books!
+    
     setLoading(true);
     getHadiths(collectionId, { page, limit: 20 })
       .then(data => setHadiths(data.hadiths || []))
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
-  }, [collectionId, page, col]);
+  }, [collectionId, page, col, activeTab]);
 
   if (!col) return (
     <main className="page-wrapper"><div className="container">
@@ -98,7 +101,7 @@ function CollectionDetail({ collectionId }) {
         <Link to="/hadith" className="back-link"><ArrowLeft size={16} /> Collections</Link>
 
         <div className="collection-detail-header">
-          <div className="coll-detail-arabic arabic-text" dir="rtl">{col.arabicName}</div>
+          <div className="coll-detail-arabic arabic-text notranslate" dir="rtl" translate="no">{col.arabicName}</div>
           <h1 className="coll-detail-name">{col.name}</h1>
           <p className="coll-detail-author">{col.author}</p>
           <p className="coll-detail-desc">{col.description}</p>
@@ -125,14 +128,14 @@ function CollectionDetail({ collectionId }) {
         {activeTab === 'books' && books.length > 0 && (
           <div className="books-list">
             {books.map(book => (
-              <div key={book.number} className="book-row card">
+              <Link to={`/hadith/${collectionId}/book/${book.number}`} key={book.number} className="book-row card" style={{ textDecoration: 'none', color: 'inherit' }}>
                 <div className="book-number">{book.number}</div>
                 <div className="book-info">
                   <div className="book-name">{book.name}</div>
-                  <div className="book-arabic arabic-text" dir="rtl">{book.arabicName}</div>
+                  <div className="book-arabic arabic-text notranslate" dir="rtl" translate="no">{book.arabicName}</div>
                 </div>
                 {book.count && <span className="book-count">{book.count} ஹதீஸ்கள்</span>}
-              </div>
+              </Link>
             ))}
           </div>
         )}
@@ -180,7 +183,7 @@ function CollectionDetail({ collectionId }) {
                         </div>
 
                         {hadith.arab && (
-                          <p className="hadith-arabic arabic-text arabic-md" dir="rtl" lang="ar">
+                          <p className="hadith-arabic arabic-text arabic-md notranslate" dir="rtl" translate="no" lang="ar">
                             {hadith.arab}
                           </p>
                         )}
@@ -237,6 +240,7 @@ function CategoryDetail({ categoryId }) {
   const [hadiths, setHadiths] = useState([]);
   const [loading, setLoading] = useState(true);
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
+  const copyHadith = (h) => { navigator.clipboard.writeText(`[${h.id}] \n${h.arab}\n\n${h.translation}`); };
 
   useEffect(() => {
     if (!cat) return;
@@ -274,7 +278,8 @@ function CategoryDetail({ categoryId }) {
 
         const results = (data.hadiths || []).filter(h => {
           const text = h.translation?.toLowerCase() || '';
-          return keywords.some(k => text.includes(k));
+          const engText = h.engTranslation?.toLowerCase() || '';
+          return keywords.some(k => text.includes(k) || engText.includes(k));
         }).slice(0, 15); // Show top 15 matches
 
         setHadiths(results);
@@ -329,7 +334,7 @@ function CategoryDetail({ categoryId }) {
                   </div>
 
                   {hadith.arab && (
-                    <p className="hadith-arabic arabic-text arabic-md" dir="rtl" lang="ar">
+                    <p className="hadith-arabic arabic-text arabic-md notranslate" dir="rtl" translate="no" lang="ar">
                       {hadith.arab}
                     </p>
                   )}
@@ -378,7 +383,9 @@ function HadithSearch() {
       const filtered = (data.hadiths || []).filter(h =>
         h.arab?.toLowerCase().includes(q) ||
         h.id?.toLowerCase().includes(q) ||
-        String(h.number) === q
+        String(h.number) === q ||
+        h.translation?.toLowerCase().includes(q) ||
+        h.engTranslation?.toLowerCase().includes(q)
       );
       setResults(filtered);
     } catch {
@@ -436,7 +443,7 @@ function HadithSearch() {
                 <span className="hadith-num-badge">#{h.number}</span>
                 <GradeBadge grade="mixed" />
               </div>
-              {h.arab && <p className="hadith-arabic arabic-text arabic-md" dir="rtl">{h.arab}</p>}
+              {h.arab && <p className="hadith-arabic arabic-text arabic-md notranslate" dir="rtl" translate="no">{h.arab}</p>}
               {h.translation && <p className="hadith-translation tamil-text" style={{ marginTop: '0.5rem', lineHeight: 1.5, fontSize: '0.95rem', fontFamily: 'var(--font-tamil)' }}>{h.translation.substring(0, 150)}...</p>}
               <div className="hadith-ref">
                 <span>{COLLECTIONS.find(c => c.id === collection)?.name}</span>
@@ -470,3 +477,112 @@ export function HadithCategoryDetail() {
   return <CategoryDetail categoryId={id} />;
 }
 export function HadithSearchPage() { return <HadithSearch />; }
+
+export function HadithBook() {
+  const { id: collectionId, bookId } = useParams();
+  const [hadiths, setHadiths] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [bookName, setBookName] = useState('');
+  const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
+  const copyHadith = (h) => { navigator.clipboard.writeText(`[${h.id}] \n${h.arab}\n\n${h.translation}`); };
+
+  useEffect(() => {
+    setLoading(true);
+    getHadithsByBook(collectionId, bookId)
+      .then(data => {
+        setHadiths(data.hadiths || []);
+        setBookName(data.bookName);
+        if (data.error) setError(data.error);
+      })
+      .catch(e => setError(e.message))
+      .finally(() => setLoading(false));
+  }, [collectionId, bookId]);
+
+  return (
+    <main className="page-wrapper fade-in" id="main-content">
+      <div className="container">
+        <Link to={`/hadith/${collectionId}`} className="back-link">
+          <ArrowLeft size={16} /> Back to Collection
+        </Link>
+
+        <div className="page-header" style={{ marginTop: '1.5rem', marginBottom: '2rem' }}>
+          <h1 className="page-title">{bookName || `Book ${bookId}`}</h1>
+          <p className="page-description" style={{ opacity: 0.7 }}>
+            {hadiths.length} Hadiths
+          </p>
+        </div>
+
+        {error && (
+          <div className="hadith-error">
+            <AlertCircle size={18} />
+            <div>
+              <p>Unable to load hadiths for this book.</p>
+              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: 4 }}>{error}</p>
+            </div>
+          </div>
+        )}
+
+        {loading ? (
+          <div className="hadiths-list">
+            {Array(5).fill(0).map((_, i) => <HadithSkeleton key={i} />)}
+          </div>
+        ) : (
+          <div className="hadiths-list">
+            {hadiths.map((hadith, i) => {
+              const bk = isBookmarked('hadith', `${collectionId}-${hadith.number}`);
+              return (
+                <article key={hadith.number || i} className="hadith-card card">
+                  <div className="hadith-card-top">
+                    <div className="hadith-num-badge">
+                      #{hadith.number}
+                    </div>
+                    <div className="hadith-card-actions">
+                      <button
+                        className={`btn-icon${bk ? ' active' : ''}`}
+                        onClick={() => toggleBookmark({
+                          type: 'hadith',
+                          id: `${collectionId}-${hadith.number}`,
+                          data: hadith,
+                          collection: collectionId
+                        })}
+                        title="Save Hadith"
+                      >
+                        <Bookmark size={18} />
+                      </button>
+                      <button 
+                        className="btn-icon"
+                        onClick={() => copyHadith(hadith)}
+                        title="Copy Hadith"
+                      >
+                        <Copy size={18} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {hadith.arab && (
+                    <div className="hadith-arabic arabic-text notranslate" dir="rtl" translate="no">
+                      {hadith.arab}
+                    </div>
+                  )}
+                  
+                  {hadith.translation && (
+                    <div className="hadith-translation tamil-text">
+                      {hadith.translation}
+                    </div>
+                  )}
+
+                  {hadith.engTranslation && (
+                    <div className="hadith-translation" style={{ marginTop: '1rem', color: 'var(--color-text-secondary)' }}>
+                      {hadith.engTranslation}
+                    </div>
+                  )}
+                </article>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

@@ -59,7 +59,7 @@ export default function Footer() {
                 YouTube
               </a>
               <a
-                href="https://www.instagram.com/Peacebeuponhim"
+                href="https://www.instagram.com/peace_be_upon_him__?stkn=MW5uY2RrNWZqbXc1Ng=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="footer-social-link"

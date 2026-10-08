@@ -3,42 +3,44 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
-  Bookmark, ChevronRight, MapPin
+  Bookmark, ChevronRight, Settings, MapPin
 } from 'lucide-react';
-import { useTheme, useSearch } from '../../context/AppContext';
+import { useTheme, useSearch, useLang } from '../../context/AppContext';
 import '../../styles/navbar.css';
 
 const NAV_LINKS = [
-  { to: '/', label: 'Home', tamil: 'முகப்பு', icon: Home, exact: true },
-  { to: '/quran', label: 'Quran', tamil: 'குர்ஆன்', icon: BookOpen },
-  { to: '/hadith', label: 'Hadith', tamil: 'ஹதீஸ்', icon: MessageSquare },
-  { to: '/dua', label: 'Dua', tamil: 'துஆ', icon: Heart },
-  { to: '/dhikr', label: 'Dhikr', tamil: 'திக்ர்', icon: Hash },
-  { to: '/explore', label: 'Explore', tamil: 'கண்டறி', icon: Compass },
-  { to: '/nearby-masjids', label: 'Nearby Masjids', tamil: 'அருகிலுள்ள மஸ்ஜிதுகள்', icon: MapPin },
-  { to: '/library', label: 'Library', tamil: 'நூலகம்', icon: Library },
-  { to: '/youtube', label: 'YouTube', tamil: 'யூட்யூப்', icon: MonitorPlay },
+  { to: '/', key: 'home', icon: Home, exact: true },
+  { to: '/quran', key: 'quran', icon: BookOpen },
+  { to: '/hadith', key: 'hadith', icon: MessageSquare },
+  { to: '/dua', key: 'dua', icon: Heart },
+  { to: '/dhikr', key: 'dhikr', icon: Hash },
+  { to: '/explore', key: 'explore', icon: Compass },
+  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
+  { to: '/library', key: 'library', icon: Library },
+  { to: '/youtube', key: 'youtube', icon: MonitorPlay },
 ];
 
 const BOTTOM_NAV = [
-  { to: '/', label: 'முகப்பு', icon: Home, exact: true },
-  { to: '/quran', label: 'குர்ஆன்', icon: BookOpen },
-  { to: '/hadith', label: 'ஹதீஸ்', icon: MessageSquare },
-  { to: '/explore', label: 'கண்டறி', icon: Compass },
+  { to: '/', key: 'home', icon: Home, exact: true },
+  { to: '/quran', key: 'quran', icon: BookOpen },
+  { to: '/hadith', key: 'hadith', icon: MessageSquare },
+  { to: '/explore', key: 'explore', icon: Compass },
 ];
 
 const MENU_LINKS = [
-  { to: '/dua', label: 'Dua', tamil: 'துஆ', icon: Heart },
-  { to: '/dhikr', label: 'Dhikr', tamil: 'திக்ர்', icon: Hash },
-  { to: '/library', label: 'Library', tamil: 'நூலகம்', icon: Library },
-  { to: '/nearby-masjids', label: 'Nearby Masjids', tamil: 'அருகிலுள்ள மஸ்ஜிதுகள்', icon: MapPin },
-  { to: '/youtube', label: 'YouTube', tamil: 'யூட்யூப்', icon: MonitorPlay },
-  { to: '/about', label: 'About', tamil: 'பற்றி', icon: Info },
+  { to: '/dua', key: 'dua', icon: Heart },
+  { to: '/dhikr', key: 'dhikr', icon: Hash },
+  { to: '/library', key: 'library', icon: Library },
+  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
+  { to: '/youtube', key: 'youtube', icon: MonitorPlay },
+  { to: '/about', key: 'about', icon: Info },
+  { to: '/settings', key: 'settings', icon: Settings },
 ];
 
 export default function Navbar() {
   const { theme, toggle } = useTheme();
   const { open: openSearch } = useSearch();
+  const { t, lang } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
@@ -66,7 +68,7 @@ export default function Navbar() {
 
           {/* Desktop nav links */}
           <div className="navbar-links" role="menubar">
-            {NAV_LINKS.map(({ to, label, icon: Icon, exact }) => (
+            {NAV_LINKS.map(({ to, key, icon: Icon, exact }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -75,7 +77,7 @@ export default function Navbar() {
                 role="menuitem"
               >
                 <Icon size={15} aria-hidden="true" />
-                {label}
+                {t(key)}
               </NavLink>
             ))}
           </div>
@@ -90,7 +92,7 @@ export default function Navbar() {
               title="Search (Ctrl+K)"
             >
               <Search size={15} aria-hidden="true" />
-              <span>Search...</span>
+              <span>{t('search')}...</span>
               <span className="navbar-search-shortcut">⌘K</span>
             </button>
 
@@ -119,18 +121,18 @@ export default function Navbar() {
       {/* Mobile bottom nav */}
       <nav className="bottom-nav" role="navigation" aria-label="Mobile navigation">
         <div className="bottom-nav-items">
-          {BOTTOM_NAV.map(({ to, label, icon: Icon, exact }) => (
+          {BOTTOM_NAV.map(({ to, key, icon: Icon, exact }) => (
             <NavLink
               key={to}
               to={to}
               end={exact}
               className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
-              aria-label={label}
+              aria-label={t(key)}
             >
               <div className="bottom-nav-item-icon">
                 <Icon size={20} aria-hidden="true" />
               </div>
-              <span className="bottom-nav-item-label">{label}</span>
+              <span className="bottom-nav-item-label">{t(key)}</span>
             </NavLink>
           ))}
           <button
@@ -141,7 +143,7 @@ export default function Navbar() {
             <div className="bottom-nav-item-icon">
               <Menu size={20} aria-hidden="true" />
             </div>
-            <span className="bottom-nav-item-label">மேலும்</span>
+            <span className="bottom-nav-item-label">{t('more')}</span>
           </button>
         </div>
       </nav>
@@ -161,7 +163,7 @@ export default function Navbar() {
         aria-modal="true"
       >
         <div className="mobile-menu-header">
-          <span className="mobile-menu-title">மேலும் பக்கங்கள்</span>
+          <span className="mobile-menu-title">{t('morePages')}</span>
           <button
             className="btn-icon"
             onClick={() => setMenuOpen(false)}
@@ -172,14 +174,14 @@ export default function Navbar() {
         </div>
 
         <div className="mobile-menu-grid">
-          {MENU_LINKS.map(({ to, label, tamil, icon: Icon }) => (
+          {MENU_LINKS.map(({ to, key, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) => `mobile-menu-link${isActive ? ' active' : ''}`}
             >
               <Icon size={22} aria-hidden="true" />
-              <span>{tamil}</span>
+              <span>{t(key)}</span>
             </NavLink>
           ))}
           <button
@@ -187,11 +189,11 @@ export default function Navbar() {
             onClick={() => { openSearch(); setMenuOpen(false); }}
           >
             <Search size={22} aria-hidden="true" />
-            <span>தேடல்</span>
+            <span>{t('search')}</span>
           </button>
           <button className="mobile-menu-link" onClick={() => { toggle(); setMenuOpen(false); }}>
             {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
-            <span>{theme === 'dark' ? 'ஒளி' : 'இருள்'}</span>
+            <span>{theme === 'dark' ? t('light') : t('dark')}</span>
           </button>
         </div>
       </div>

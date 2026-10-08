@@ -66,7 +66,7 @@ export default function Library() {
                     <div key={b.id} className="card" style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem' }}>
                       <div style={{ flex: 1 }}>
                         <h3 style={{ fontSize: '1rem', fontWeight: 600, color: 'var(--color-text-primary)', marginBottom: '0.5rem' }}>{b.title}</h3>
-                        <p className="arabic-text" dir="rtl" style={{ fontSize: '1.2rem', color: 'var(--color-primary)', marginBottom: '1rem' }}>{b.subtitle}</p>
+                        <p className="arabic-text notranslate" dir="rtl" translate="no" style={{ fontSize: '1.2rem', color: 'var(--color-primary)', marginBottom: '1rem' }}>{b.subtitle}</p>
                         <Link to={b.href} className="btn btn-ghost btn-sm" style={{ padding: 0 }}>
                           Read full Hadith <ExternalLink size={14} />
                         </Link>

@@ -1,4 +1,35 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { TRANSLATIONS, LANGUAGES } from '../i18n/translations';
+
+// ============================================
+// LANGUAGE CONTEXT
+// ============================================
+const LanguageContext = createContext(null);
+
+export function LanguageProvider({ children }) {
+  const [lang, setLang] = useState(() => localStorage.getItem('app-lang') || 'ta');
+
+  useEffect(() => {
+    localStorage.setItem('app-lang', lang);
+    const langMeta = LANGUAGES.find(l => l.code === lang);
+    document.documentElement.setAttribute('lang', lang);
+    document.documentElement.setAttribute('dir', langMeta?.dir || 'ltr');
+  }, [lang]);
+
+  const t = useCallback((key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en']?.[key] || key, [lang]);
+
+  return (
+    <LanguageContext.Provider value={{ lang, setLang, t, languages: LANGUAGES }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+export const useLang = () => {
+  const ctx = useContext(LanguageContext);
+  if (!ctx) throw new Error('useLang must be used inside LanguageProvider');
+  return ctx;
+};
 
 // ============================================
 // THEME CONTEXT
@@ -21,7 +52,7 @@ export function ThemeProvider({ children }) {
     setTheme(t => t === 'dark' ? 'light' : 'dark');
   }, []);
 
-  return <ThemeContext.Provider value={{ theme, toggle }}>{children}</ThemeContext.Provider>;
+  return <ThemeContext.Provider value={{ theme, toggle, setTheme }}>{children}</ThemeContext.Provider>;
 }
 
 export const useTheme = () => {

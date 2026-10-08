@@ -7,10 +7,27 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const key = process.env.YOUTUBE_API_KEY;
-  if (!key) return res.status(500).json({ error: 'API key not configured' });
-
   const { endpoint, ...params } = req.query;
+  const key = process.env.YOUTUBE_API_KEY;
+  if (!key) {
+    // Return mock data for local development if no API key is provided
+    if (endpoint === 'search') {
+      return res.status(200).json({
+        items: [
+          { id: { videoId: 'mock1' }, snippet: { title: 'Islamic Reminder 1', description: 'Mock video 1', channelTitle: 'Mock Channel', publishedAt: '2023-01-01T00:00:00Z', thumbnails: { medium: { url: 'https://via.placeholder.com/320x180?text=Mock+Video+1' } } } },
+          { id: { videoId: 'mock2' }, snippet: { title: 'Islamic Reminder 2', description: 'Mock video 2', channelTitle: 'Mock Channel', publishedAt: '2023-01-02T00:00:00Z', thumbnails: { medium: { url: 'https://via.placeholder.com/320x180?text=Mock+Video+2' } } } }
+        ]
+      });
+    } else if (endpoint === 'channels') {
+      return res.status(200).json({
+        items: [
+          { snippet: { title: 'Mock Channel', thumbnails: { default: { url: 'https://via.placeholder.com/88?text=MC' } } }, statistics: { subscriberCount: '100000', videoCount: '500' } }
+        ]
+      });
+    }
+    return res.status(200).json({ items: [] });
+  }
+
   if (!endpoint) return res.status(400).json({ error: 'Missing endpoint' });
 
   // Only allow safe endpoints

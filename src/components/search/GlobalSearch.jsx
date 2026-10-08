@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, X, BookOpen, MessageSquare, Heart, Loader } from 'lucide-react';
 import { useSearch } from '../../context/AppContext';
 import { searchQuran } from '../../services/quran';
-import { searchDuas } from '../../services/dua';
+import { fetchDuasData, searchDuas } from '../../services/dua';
 import './GlobalSearch.css';
 
 const QUICK_LINKS = [
@@ -23,21 +23,29 @@ export default function GlobalSearch() {
   const timerRef = useRef(null);
   const navigate = useNavigate();
 
+  const [allDuas, setAllDuas] = useState(null);
+
   useEffect(() => {
     if (isOpen) {
       setQuery('');
       setResults({ quran: [], duas: [] });
       setTimeout(() => inputRef.current?.focus(), 50);
+      
+      // Lazily fetch duas for search
+      if (!allDuas) {
+        fetchDuasData().then(data => setAllDuas(data.duas || [])).catch(() => setAllDuas([]));
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, allDuas]);
 
   const doSearch = useCallback(async (q) => {
     if (!q || q.length < 2) { setResults({ quran: [], duas: [] }); return; }
     setLoading(true);
     try {
+      const duaSearchResults = allDuas ? searchDuas(allDuas, q) : [];
       const [quranRes, duaRes] = await Promise.allSettled([
         searchQuran(q),
-        Promise.resolve({ results: searchDuas(q) }),
+        Promise.resolve({ results: duaSearchResults }),
       ]);
       setResults({
         quran: quranRes.status === 'fulfilled' ? (quranRes.value.results || []).slice(0, 5) : [],
@@ -46,7 +54,7 @@ export default function GlobalSearch() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [allDuas]);
 
   useEffect(() => {
     clearTimeout(timerRef.current);

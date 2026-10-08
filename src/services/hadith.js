@@ -94,6 +94,47 @@ export function getCollection(id) {
 }
 
 // Get hadiths from a collection
+export async function getHadithsByBook(collectionId, bookId) {
+  try {
+    const col = getCollection(collectionId);
+    if (!col) throw new Error('Collection not found');
+
+    const collectionKey = col.id === 'abu-dawud' ? 'abudawud' : col.id === 'tirmidzi' ? 'tirmidhi' : col.id === 'ibnu-majah' ? 'ibnmajah' : col.id;
+    
+    // Fetch only the specific book (section) which is just a few KB instead of 5MB
+    const [araData, tamData, engData] = await Promise.all([
+      fetchCached(`${BASE}/ara-${collectionKey}/sections/${bookId}.min.json`).catch(() => null),
+      fetchCached(`${BASE}/tam-${collectionKey}/sections/${bookId}.min.json`).catch(() => null),
+      fetchCached(`${BASE}/eng-${collectionKey}/sections/${bookId}.min.json`).catch(() => null),
+    ]);
+
+    const transData = tamData && tamData.hadiths ? tamData : engData;
+    if (!transData || !transData.hadiths) return { hadiths: [], error: 'Failed to load' };
+
+    const formattedHadiths = transData.hadiths.map((h, i) => {
+      const araText = araData?.hadiths?.[i]?.text || '';
+      const engText = engData?.hadiths?.[i]?.text || '';
+      return {
+        number: h.hadithnumber,
+        arab: araText,
+        translation: h.text,
+        engTranslation: engText,
+        id: `${h.reference?.book}-${h.reference?.hadith}`
+      };
+    });
+
+    return {
+      hadiths: formattedHadiths,
+      name: col.name,
+      bookName: transData.metadata?.section?.[bookId] || `Book ${bookId}`,
+      total: transData.hadiths.length,
+    };
+  } catch (err) {
+    console.error(err);
+    return { hadiths: [], error: err.message };
+  }
+}
+
 export async function getHadiths(collectionId, { page = 1, limit = 20 } = {}) {
   try {
     const col = getCollection(collectionId);
@@ -117,10 +158,12 @@ export async function getHadiths(collectionId, { page = 1, limit = 20 } = {}) {
     const formattedHadiths = transData.hadiths.slice(startIndex, endIndex).map((h, i) => {
       const realIndex = startIndex + i;
       const araText = araData?.hadiths?.[realIndex]?.text || '';
+      const engText = engData?.hadiths?.[realIndex]?.text || '';
       return {
         number: h.hadithnumber,
         arab: araText,
         translation: h.text,
+        engTranslation: engText,
         id: `${h.reference?.book}-${h.reference?.hadith}`
       };
     });

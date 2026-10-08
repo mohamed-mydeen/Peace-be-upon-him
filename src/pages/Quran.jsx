@@ -117,7 +117,7 @@ function SurahList() {
                     <span className="surah-ayah-count">{surah.verses_count} Ayahs</span>
                   </div>
                 </div>
-                <span className="surah-arabic arabic-text" dir="rtl">{surah.name_arabic}</span>
+                <span className="surah-arabic arabic-text notranslate" dir="rtl" translate="no">{surah.name_arabic}</span>
                 <ChevronRight size={16} className="surah-arrow" aria-hidden="true" />
               </Link>
             ))
@@ -263,12 +263,12 @@ function SurahDetail({ surahId }) {
               </span>
               <span className="badge badge-unknown">{surah.verses_count} Ayahs</span>
             </div>
-            <h1 className="surah-detail-name arabic-text" dir="rtl">{surah.name_arabic}</h1>
+            <h1 className="surah-detail-name arabic-text notranslate" dir="rtl" translate="no">{surah.name_arabic}</h1>
             <p className="surah-detail-name-en">{surah.name_simple} — {surah.translated_name?.name}</p>
 
             {/* Bismillah (not for Al-Fatiha or At-Tawbah) */}
             {surah.id !== 1 && surah.id !== 9 && (
-              <p className="bismillah arabic-text" dir="rtl">
+              <p className="bismillah arabic-text notranslate" dir="rtl" translate="no">
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
             )}
@@ -365,7 +365,7 @@ function SurahDetail({ surahId }) {
                   </div>
 
                   {/* Arabic */}
-                  <p className="ayah-arabic arabic-text arabic-xl" dir="rtl" lang="ar">
+                  <p className="ayah-arabic arabic-text arabic-xl notranslate" dir="rtl" translate="no" lang="ar">
                     {ayah.text_uthmani}
                   </p>
 
