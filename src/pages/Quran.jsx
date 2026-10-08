@@ -194,6 +194,21 @@ function SurahDetail({ surahId }) {
                 بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
               </p>
             )}
+
+            {/* Bandar Baleela Audio Player */}
+            <div className="surah-audio-player" style={{ marginTop: '1.5rem', background: 'var(--color-bg-card)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
+              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                <span>Recitation by <strong>Sheikh Bandar Baleela</strong></span>
+              </p>
+              <audio 
+                controls 
+                style={{ width: '100%', height: '40px', outline: 'none' }}
+                src={`https://download.quranicaudio.com/quran/bandar_baleela/${String(surah.id).padStart(3, '0')}.mp3`}
+                preload="none"
+              >
+                Your browser does not support the audio element.
+              </audio>
+            </div>
           </div>
         )}
 
