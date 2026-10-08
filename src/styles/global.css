@@ -9,6 +9,7 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+  -webkit-tap-highlight-color: transparent;
 }
 
 html {
@@ -605,4 +606,36 @@ input:focus, textarea:focus, select:focus {
   pointer-events: all;
   max-width: 320px;
   text-align: center;
+}
+
+/* Global Back Link */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  padding: var(--space-5) 0 0;
+  transition: color var(--transition-fast);
+}
+.back-link:hover { color: var(--color-primary); }
+
+/* Smooth professional click effect for interactive elements */
+button:active, 
+.btn:active, 
+.btn-icon:active, 
+.navbar-link:active,
+.bottom-nav-item:active,
+.social-card:active,
+.card-hover:active,
+.quick-nav-card:active {
+  transform: scale(0.96) !important;
+  opacity: 0.8;
+  transition: transform 0.1s ease, opacity 0.1s ease !important;
+}
+
+/* Ensure smooth transition back */
+button, .btn, .btn-icon, .navbar-link, .bottom-nav-item, .social-card, .card-hover, .quick-nav-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
 }

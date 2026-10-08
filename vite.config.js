@@ -1,61 +1,115 @@
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
-export default defineConfig({
-  plugins: [
-    react(),
-    VitePWA({
-      registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'channels4_profile.jpg'],
-      manifest: {
-        name: 'Peace be upon him',
-        short_name: 'Peace',
-        description: 'Tamil Islamic Knowledge Platform',
-        theme_color: '#1a1f1c',
-        background_color: '#1a1f1c',
-        display: 'standalone',
-        icons: [
-          {
-            src: '/channels4_profile.jpg',
-            sizes: '192x192',
-            type: 'image/jpeg'
-          },
-          {
-            src: '/channels4_profile.jpg',
-            sizes: '512x512',
-            type: 'image/jpeg'
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '')
+
+  // Mock the Vercel serverless function for local development
+  const localApiProxy = () => ({
+    name: 'local-api-proxy',
+    configureServer(server) {
+      server.middlewares.use('/api/youtube', async (req, res) => {
+        try {
+          const urlObj = new URL(req.originalUrl, 'http://localhost')
+          const params = Object.fromEntries(urlObj.searchParams)
+          const endpoint = params.endpoint
+
+          res.setHeader('Content-Type', 'application/json')
+          res.setHeader('Access-Control-Allow-Origin', '*')
+
+          if (!endpoint) {
+            res.statusCode = 400
+            return res.end(JSON.stringify({ error: 'Missing endpoint' }))
           }
-        ]
-      },
-      workbox: {
-        runtimeCaching: [
-          {
-            urlPattern: /^https:\/\/api\.quran\.com\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'quran-api-cache',
-              expiration: {
-                maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              },
-              cacheableResponse: { statuses: [0, 200] }
-            }
-          },
-          {
-            urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
-            handler: 'CacheFirst',
-            options: {
-              cacheName: 'hadith-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
-              },
-              cacheableResponse: { statuses: [0, 200] }
-            }
+
+          const allowed = ['channels', 'search', 'videos', 'playlistItems']
+          if (!allowed.includes(endpoint)) {
+            res.statusCode = 403
+            return res.end(JSON.stringify({ error: 'Forbidden' }))
           }
-        ]
-      }
-    })
-  ],
+
+          const key = env.YOUTUBE_API_KEY || process.env.YOUTUBE_API_KEY
+          if (!key) {
+            res.statusCode = 500
+            return res.end(JSON.stringify({ error: 'API key not configured' }))
+          }
+
+          const targetUrl = new URL(`https://www.googleapis.com/youtube/v3/${endpoint}`)
+          targetUrl.searchParams.set('key', key)
+          for (const [k, v] of Object.entries(params)) {
+            if (k !== 'endpoint') targetUrl.searchParams.set(k, v)
+          }
+
+          const response = await fetch(targetUrl.toString())
+          const data = await response.json()
+
+          res.statusCode = response.status
+          res.end(JSON.stringify(data))
+        } catch (err) {
+          res.statusCode = 500
+          res.end(JSON.stringify({ error: err.message }))
+        }
+      })
+    }
+  })
+
+  return {
+    plugins: [
+      react(),
+      localApiProxy(),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'channels4_profile.jpg'],
+        manifest: {
+          name: 'Peace be upon him',
+          short_name: 'Peace',
+          description: 'Tamil Islamic Knowledge Platform',
+          theme_color: '#1a1f1c',
+          background_color: '#1a1f1c',
+          display: 'standalone',
+          icons: [
+            {
+              src: '/channels4_profile.jpg',
+              sizes: '192x192',
+              type: 'image/jpeg'
+            },
+            {
+              src: '/channels4_profile.jpg',
+              sizes: '512x512',
+              type: 'image/jpeg'
+            }
+          ]
+        },
+        workbox: {
+          runtimeCaching: [
+            {
+              urlPattern: /^https:\/\/api\.quran\.com\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'quran-api-cache',
+                expiration: {
+                  maxEntries: 100,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                },
+                cacheableResponse: { statuses: [0, 200] }
+              }
+            },
+            {
+              urlPattern: /^https:\/\/cdn\.jsdelivr\.net\/.*/i,
+              handler: 'CacheFirst',
+              options: {
+                cacheName: 'hadith-api-cache',
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days
+                },
+                cacheableResponse: { statuses: [0, 200] }
+              }
+            }
+          ]
+        }
+      })
+    ],
+  }
 })

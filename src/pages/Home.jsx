@@ -4,6 +4,7 @@ import { MonitorPlay, Camera, Play, ExternalLink, Users, Eye, Video, ChevronRigh
 import {
   getChannelInfo, getLatestVideos, formatCount, formatRelativeDate, formatDuration, isConfigured
 } from '../services/youtube';
+import PrayerTimes from '../components/prayer/PrayerTimes';
 import './Home.css';
 
 //  Skeleton helpers 
@@ -116,7 +117,7 @@ export default function Home() {
             </h1>
 
             <p className="hero-subtitle">
-              <span className="hero-sub-arabic arabic-text" dir="rtl">قُرْآن • حَدِيث • سُنَّة</span>
+              <span className="hero-sub-arabic arabic-text notranslate" dir="rtl" translate="no">قُرْآن • حَدِيث • سُنَّة</span>
             </p>
 
             <p className="hero-desc">
@@ -137,7 +138,7 @@ export default function Home() {
                 Watch on YouTube
               </a>
               <a
-                href="https://www.instagram.com/"
+                href="https://www.instagram.com/peace_be_upon_him__?stkn=MW5uY2RrNWZqbXc1Ng=="
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn btn-ghost btn-lg"
@@ -148,6 +149,13 @@ export default function Home() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* PRAYER TIMES WIDGET */}
+      <section className="section" style={{ paddingBottom: 0 }} aria-label="Prayer Times">
+        <div className="container">
+          <PrayerTimes />
         </div>
       </section>
 
@@ -301,7 +309,7 @@ export default function Home() {
               <ExternalLink size={16} className="social-card-arrow" />
             </a>
             <a
-              href="https://www.instagram.com/NoorTamil"
+              href="https://www.instagram.com/peace_be_upon_him__?stkn=MW5uY2RrNWZqbXc1Ng=="
               target="_blank" rel="noopener noreferrer"
               className="social-card social-card-ig"
             >

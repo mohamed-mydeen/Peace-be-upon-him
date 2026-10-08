@@ -27,3 +27,6 @@ dist-ssr
 .env
 .env.local
 .env.production
+
+# Ignore prompt files
+[Pp]rompt.md

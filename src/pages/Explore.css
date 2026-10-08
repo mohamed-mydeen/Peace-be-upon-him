@@ -1,0 +1,127 @@
+.explore-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.explore-icon-wrapper {
+  display: inline-flex;
+  padding: 16px;
+  background: var(--color-bg-secondary);
+  border-radius: 50%;
+  margin-bottom: 16px;
+  color: var(--color-primary);
+}
+
+.explore-title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.5rem;
+}
+
+.explore-subtitle {
+  font-size: 1.125rem;
+  color: var(--color-text-secondary);
+  font-family: var(--font-tamil);
+  max-width: 500px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.explore-main-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.explore-main-card {
+  padding: 2rem;
+  text-align: center;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.explore-main-card.primary {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
+}
+
+.explore-main-card h2 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.explore-main-card.primary h2 {
+  color: #ffffff;
+}
+
+.explore-main-card p {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.explore-main-card:not(.primary) h2 {
+  color: var(--color-text-primary);
+}
+
+.explore-main-card:not(.primary) p {
+  color: var(--color-text-secondary);
+}
+
+.explore-topics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem;
+}
+
+.topic-card {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-decoration: none;
+}
+
+.topic-icon {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.topic-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.topic-tamil {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.situations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 4rem;
+}
+
+.situation-card {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  text-align: center;
+  background: var(--color-bg-card);
+  text-decoration: none;
+}
+
+.situation-card .topic-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}

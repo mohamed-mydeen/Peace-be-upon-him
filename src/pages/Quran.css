@@ -133,18 +133,7 @@
 }
 
 /* Surah detail */
-.back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--text-sm);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  padding: var(--space-5) 0 0;
-  transition: color var(--transition-fast);
-}
 
-.back-link:hover { color: var(--color-primary); }
 
 .surah-detail-header {
   text-align: center;

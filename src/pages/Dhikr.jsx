@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Hash, RotateCcw, Plus, Activity } from 'lucide-react';
-import { DHIKR_SESSIONS, getDhikrBySession } from '../services/dhikr';
+import { Hash, RotateCcw, Plus, Activity, Loader2 } from 'lucide-react';
+import { fetchDhikrData, getDhikrBySession } from '../services/dhikr';
 import './Dhikr.css';
 
 export default function Dhikr() {
@@ -9,17 +9,39 @@ export default function Dhikr() {
   const [dhikrs, setDhikrs] = useState([]);
   const [counts, setCounts] = useState({});
 
+  const [allDhikrs, setAllDhikrs] = useState([]);
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     // Load local storage counts
     try {
       const stored = JSON.parse(localStorage.getItem('dhikr_counts') || '{}');
       setCounts(stored);
     } catch { /* ignore */ }
+
+    async function loadData() {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await fetchDhikrData();
+        setAllDhikrs(data.dhikrList || []);
+        setSessions(data.sessions || []);
+      } catch (err) {
+        setError('Failed to load dhikr.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
   }, []);
 
   useEffect(() => {
-    setDhikrs(getDhikrBySession(session));
-  }, [session]);
+    if (allDhikrs.length > 0) {
+      setDhikrs(getDhikrBySession(allDhikrs, session));
+    }
+  }, [session, allDhikrs]);
 
   const updateCount = (id, increment) => {
     setCounts(prev => {
@@ -65,80 +87,93 @@ export default function Dhikr() {
           </div>
         </div>
 
-        {/* Sessions toggle */}
-        <div className="dhikr-sessions">
-          {DHIKR_SESSIONS.map(s => (
-            <button
-              key={s.id}
-              className={`dhikr-session-btn${session === s.id ? ' active' : ''}`}
-              onClick={() => setSession(s.id)}
-            >
-              <span className="ds-name">{s.name}</span>
-              <span className="ds-tamil tamil-text">{s.tamil}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="dhikr-progress-bar">
-          <div className="dhikr-progress-text">
-            <span>Session Progress</span>
-            <span>{totalCompleted} / {dhikrs.length} completed</span>
+        {loading ? (
+          <div className="loader-container">
+            <Loader2 className="spinner" size={32} />
+            <p>Loading dhikr...</p>
           </div>
-          <div className="dhikr-progress-track">
-            <div 
-              className="dhikr-progress-fill" 
-              style={{ width: `${dhikrs.length ? (totalCompleted / dhikrs.length) * 100 : 0}%` }}
-            />
+        ) : error ? (
+          <div className="error-container">
+            <p>{error}</p>
           </div>
-          {isAllCompleted && <p className="dhikr-completed-msg">Mashallah! Session completed.</p>}
-          <button className="btn btn-ghost btn-sm" onClick={resetAll} style={{ marginTop: '1rem' }}>
-            <RotateCcw size={14} /> Reset Session
-          </button>
-        </div>
+        ) : (
+          <>
+            {/* Sessions toggle */}
+            <div className="dhikr-sessions">
+              {sessions.map(s => (
+                <button
+                  key={s.id}
+                  className={`dhikr-session-btn${session === s.id ? ' active' : ''}`}
+                  onClick={() => setSession(s.id)}
+                >
+                  <span className="ds-name">{s.name}</span>
+                  <span className="ds-tamil tamil-text">{s.tamil}</span>
+                </button>
+              ))}
+            </div>
 
-        {/* Dhikr items */}
-        <div className="dhikr-list">
-          {dhikrs.map(dhikr => {
-            const current = counts[dhikr.id] || 0;
-            const isDone = current >= dhikr.target;
-            
-            return (
-              <div key={dhikr.id} className={`dhikr-item card${isDone ? ' done' : ''}`}>
-                <div className="dhikr-item-content">
-                  <p className="dhikr-arabic arabic-text arabic-lg" dir="rtl">{dhikr.arabic}</p>
-                  <p className="dhikr-translit">{dhikr.transliteration}</p>
-                  <p className="dhikr-tamil tamil-text">{dhikr.meaning_tamil}</p>
-                  {dhikr.note && <p className="dhikr-note">{dhikr.note}</p>}
-                </div>
-
-                <div className="dhikr-counter-area">
-                  <div className="dhikr-count-display">
-                    <span className="current-count">{current}</span>
-                    <span className="target-count">/ {dhikr.target}</span>
-                  </div>
-                  
-                  <div className="dhikr-controls">
-                    <button 
-                      className={`dhikr-tap-btn${isDone ? ' done' : ''}`}
-                      onClick={() => updateCount(dhikr.id, true)}
-                      disabled={isDone}
-                      aria-label="Count"
-                    >
-                      {isDone ? 'Completed' : <Plus size={32} />}
-                    </button>
-                    <button 
-                      className="dhikr-reset-btn" 
-                      onClick={() => updateCount(dhikr.id, false)}
-                      aria-label="Reset"
-                    >
-                      <RotateCcw size={18} />
-                    </button>
-                  </div>
-                </div>
+            <div className="dhikr-progress-bar">
+              <div className="dhikr-progress-text">
+                <span>Session Progress</span>
+                <span>{totalCompleted} / {dhikrs.length} completed</span>
               </div>
-            );
-          })}
-        </div>
+              <div className="dhikr-progress-track">
+                <div 
+                  className="dhikr-progress-fill" 
+                  style={{ width: `${dhikrs.length ? (totalCompleted / dhikrs.length) * 100 : 0}%` }}
+                />
+              </div>
+              {isAllCompleted && <p className="dhikr-completed-msg">Mashallah! Session completed.</p>}
+              <button className="btn btn-ghost btn-sm" onClick={resetAll} style={{ marginTop: '1rem' }}>
+                <RotateCcw size={14} /> Reset Session
+              </button>
+            </div>
+
+            {/* Dhikr items */}
+            <div className="dhikr-list">
+              {dhikrs.map(dhikr => {
+                const current = counts[dhikr.id] || 0;
+                const isDone = current >= dhikr.target;
+                
+                return (
+                  <div key={dhikr.id} className={`dhikr-item card${isDone ? ' done' : ''}`}>
+                    <div className="dhikr-item-content">
+                      <p className="dhikr-arabic arabic-text arabic-lg notranslate" dir="rtl" translate="no">{dhikr.arabic}</p>
+                      <p className="dhikr-translit">{dhikr.transliteration}</p>
+                      <p className="dhikr-tamil tamil-text">{dhikr.meaning_tamil}</p>
+                      {dhikr.note && <p className="dhikr-note">{dhikr.note}</p>}
+                    </div>
+
+                    <div className="dhikr-counter-area">
+                      <div className="dhikr-count-display">
+                        <span className="current-count">{current}</span>
+                        <span className="target-count">/ {dhikr.target}</span>
+                      </div>
+                      
+                      <div className="dhikr-controls">
+                        <button 
+                          className={`dhikr-tap-btn${isDone ? ' done' : ''}`}
+                          onClick={() => updateCount(dhikr.id, true)}
+                          disabled={isDone}
+                          aria-label="Count"
+                        >
+                          {isDone ? 'Completed' : <Plus size={32} />}
+                        </button>
+                        <button 
+                          className="dhikr-reset-btn" 
+                          onClick={() => updateCount(dhikr.id, false)}
+                          aria-label="Reset"
+                        >
+                          <RotateCcw size={18} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
       </div>
     </main>
   );
