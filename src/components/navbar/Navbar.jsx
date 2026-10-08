@@ -3,7 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
-  Bookmark, ChevronRight, Settings
+  Bookmark, ChevronRight, Settings, MapPin
 } from 'lucide-react';
 import { useTheme, useSearch, useLang } from '../../context/AppContext';
 import '../../styles/navbar.css';
@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { to: '/dua', key: 'dua', icon: Heart },
   { to: '/dhikr', key: 'dhikr', icon: Hash },
   { to: '/explore', key: 'explore', icon: Compass },
+  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
   { to: '/library', key: 'library', icon: Library },
   { to: '/youtube', key: 'youtube', icon: MonitorPlay },
 ];
@@ -30,6 +31,7 @@ const MENU_LINKS = [
   { to: '/dua', key: 'dua', icon: Heart },
   { to: '/dhikr', key: 'dhikr', icon: Hash },
   { to: '/library', key: 'library', icon: Library },
+  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
   { to: '/youtube', key: 'youtube', icon: MonitorPlay },
   { to: '/about', key: 'about', icon: Info },
   { to: '/settings', key: 'settings', icon: Settings },
