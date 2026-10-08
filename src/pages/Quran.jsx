@@ -142,6 +142,11 @@ function SurahDetail({ surahId }) {
   const [error, setError] = useState('');
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
 
+  // Audio state
+  const [playingIndex, setPlayingIndex] = useState(-1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const audioRef = React.useRef(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
     setLoading(true);
@@ -160,6 +165,51 @@ function SurahDetail({ surahId }) {
                  ayah.translations?.[0]?.text || '';
     navigator.clipboard.writeText(`${ayah.verse_key} — ${text}`);
   };
+
+  // Audio Controls
+  const togglePlay = () => {
+    if (ayahs.length === 0) return;
+    if (playingIndex === -1) {
+      setPlayingIndex(0);
+      setIsPlaying(true);
+    } else {
+      if (isPlaying) {
+        audioRef.current?.pause();
+        setIsPlaying(false);
+      } else {
+        audioRef.current?.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
+  const handleAudioEnded = () => {
+    if (playingIndex < ayahs.length - 1) {
+      setPlayingIndex(prev => prev + 1);
+    } else {
+      setPlayingIndex(-1);
+      setIsPlaying(false);
+    }
+  };
+
+  // Auto-scroll to active ayah
+  useEffect(() => {
+    if (playingIndex >= 0 && isPlaying) {
+      const el = document.getElementById(`ayah-${ayahs[playingIndex]?.verse_number}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [playingIndex, isPlaying, ayahs]);
+
+  useEffect(() => {
+    if (audioRef.current && playingIndex >= 0 && isPlaying) {
+      audioRef.current.play().catch(e => {
+        console.warn('Audio play failed:', e);
+        setIsPlaying(false);
+      });
+    }
+  }, [playingIndex, isPlaying]);
 
   if (error) return (
     <main className="page-wrapper"><div className="container">
@@ -195,20 +245,35 @@ function SurahDetail({ surahId }) {
               </p>
             )}
 
-            {/* Bandar Baleela Audio Player */}
-            <div className="surah-audio-player" style={{ marginTop: '1.5rem', background: 'var(--color-bg-card)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)' }}>
-              <p style={{ fontSize: '0.85rem', color: 'var(--color-text-secondary)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
-                <span>Recitation by <strong>Sheikh Bandar Baleela</strong></span>
-              </p>
-              <audio 
-                controls 
-                style={{ width: '100%', height: '40px', outline: 'none' }}
-                src={`https://download.quranicaudio.com/quran/bandar_baleela/${String(surah.id).padStart(3, '0')}.mp3`}
-                preload="none"
+            {/* Ayah-by-Ayah Audio Player */}
+            <div className="surah-audio-player" style={{ marginTop: '1.5rem', background: 'var(--color-bg-card)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <p style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Recitation: Sheikh Bandar Baleela</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
+                  {playingIndex >= 0 ? `Playing Ayah ${ayahs[playingIndex]?.verse_number}` : 'Ayah by Ayah Recitation'}
+                </p>
+              </div>
+              <button 
+                className="btn btn-primary" 
+                onClick={togglePlay}
+                style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
-                Your browser does not support the audio element.
-              </audio>
+                {isPlaying ? (
+                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                ) : (
+                  <Play fill="currentColor" size={24} />
+                )}
+              </button>
             </div>
+            
+            {/* Hidden audio element */}
+            <audio 
+              ref={audioRef}
+              src={playingIndex >= 0 && ayahs[playingIndex] ? `https://cdn.islamic.network/quran/audio/128/ar.bandarbaleela/${ayahs[playingIndex].id}.mp3` : ''}
+              onEnded={handleAudioEnded}
+              onPause={() => setIsPlaying(false)}
+              onPlay={() => setIsPlaying(true)}
+            />
           </div>
         )}
 
@@ -216,13 +281,19 @@ function SurahDetail({ surahId }) {
         <div className="ayahs-list">
           {loading
             ? Array(5).fill(0).map((_, i) => <AyahSkeleton key={i} />)
-            : ayahs.map((ayah) => {
+            : ayahs.map((ayah, index) => {
               const tamilTrans = ayah.translations?.find(t => t.resource_id === 133);
               const englishTrans = ayah.translations?.find(t => t.resource_id === 20);
               const bk = isBookmarked('ayah', ayah.verse_key);
+              const isAyahPlaying = playingIndex === index;
 
               return (
-                <article key={ayah.verse_key} className="ayah-card" id={`ayah-${ayah.verse_number}`}>
+                <article 
+                  key={ayah.verse_key} 
+                  className={`ayah-card ${isAyahPlaying ? 'playing-highlight' : ''}`} 
+                  id={`ayah-${ayah.verse_number}`}
+                  style={isAyahPlaying ? { borderColor: 'var(--color-primary)', boxShadow: '0 4px 12px rgba(26, 107, 58, 0.15)', transform: 'scale(1.02)', transition: 'all 0.3s ease' } : { transition: 'all 0.3s ease' }}
+                >
                   <div className="ayah-top">
                     <span className="ayah-number" aria-label={`Ayah ${ayah.verse_number}`}>
                       {ayah.verse_number}
