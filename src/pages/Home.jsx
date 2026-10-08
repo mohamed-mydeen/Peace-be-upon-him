@@ -28,14 +28,13 @@ function VideoSkeleton() {
   );
 }
 
-//  YouTube Not Configured 
 function NotConfigured() {
   return (
     <div className="yt-not-configured">
       <AlertCircle size={36} className="yt-nc-icon" />
       <h3 className="yt-nc-title">YouTube Integration Not Configured</h3>
       <p className="yt-nc-desc">
-        Add your <code>VITE_YOUTUBE_API_KEY</code> and <code>VITE_YOUTUBE_CHANNEL_ID</code> to a <code>.env</code> file to enable YouTube channel integration.
+        Add <code>VITE_YOUTUBE_CHANNEL_ID</code> to your Vercel Environment Variables (and <code>YOUTUBE_API_KEY</code>) to enable YouTube channel integration.
       </p>
       <Link to="/about" className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }}>
         Setup Instructions →
