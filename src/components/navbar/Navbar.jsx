@@ -3,7 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
-  Bookmark, ChevronRight
+  Bookmark, ChevronRight, MapPin
 } from 'lucide-react';
 import { useTheme, useSearch } from '../../context/AppContext';
 import '../../styles/navbar.css';
@@ -15,6 +15,7 @@ const NAV_LINKS = [
   { to: '/dua', label: 'Dua', tamil: 'துஆ', icon: Heart },
   { to: '/dhikr', label: 'Dhikr', tamil: 'திக்ர்', icon: Hash },
   { to: '/explore', label: 'Explore', tamil: 'கண்டறி', icon: Compass },
+  { to: '/nearby-masjids', label: 'Nearby Masjids', tamil: 'அருகிலுள்ள மஸ்ஜிதுகள்', icon: MapPin },
   { to: '/library', label: 'Library', tamil: 'நூலகம்', icon: Library },
   { to: '/youtube', label: 'YouTube', tamil: 'யூட்யூப்', icon: MonitorPlay },
 ];
@@ -30,6 +31,7 @@ const MENU_LINKS = [
   { to: '/dua', label: 'Dua', tamil: 'துஆ', icon: Heart },
   { to: '/dhikr', label: 'Dhikr', tamil: 'திக்ர்', icon: Hash },
   { to: '/library', label: 'Library', tamil: 'நூலகம்', icon: Library },
+  { to: '/nearby-masjids', label: 'Nearby Masjids', tamil: 'அருகிலுள்ள மஸ்ஜிதுகள்', icon: MapPin },
   { to: '/youtube', label: 'YouTube', tamil: 'யூட்யூப்', icon: MonitorPlay },
   { to: '/about', label: 'About', tamil: 'பற்றி', icon: Info },
 ];

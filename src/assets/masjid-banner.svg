@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" fill="none">
+  <defs>
+    <linearGradient id="sky" x1="600" y1="0" x2="600" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8DD7CF"/>
+      <stop offset=".56" stop-color="#E5DDAE"/>
+      <stop offset="1" stop-color="#E9B977"/>
+    </linearGradient>
+    <linearGradient id="moonlight" x1="920" y1="78" x2="920" y2="228" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFF9DC"/>
+      <stop offset="1" stop-color="#F7D897"/>
+    </linearGradient>
+    <linearGradient id="foreground" x1="600" y1="215" x2="600" y2="360" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#28644C"/>
+      <stop offset="1" stop-color="#173D33"/>
+    </linearGradient>
+    <pattern id="arches" width="68" height="92" patternUnits="userSpaceOnUse">
+      <path d="M13 92V60a21 21 0 0 1 42 0v32" stroke="#B7D6B3" stroke-opacity=".42" stroke-width="3"/>
+      <path d="M20 92V62a14 14 0 0 1 28 0v30" stroke="#B7D6B3" stroke-opacity=".2" stroke-width="2"/>
+    </pattern>
+    <style>
+      @keyframes moon-rise {
+        from { opacity: 0; transform: translateY(18px) scale(.82); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      #moon { transform-box: fill-box; transform-origin: center; animation: moon-rise 1.2s ease-out both; }
+      @media (prefers-reduced-motion: reduce) {
+        #moon { animation: none; }
+      }
+    </style>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1200v360H0z"/>
+  <path id="moon" d="M920 78a75 75 0 1 0 0 150 55 65 0 0 1 0-150Z" fill="url(#moonlight)"/>
+  <path fill="#fff" fill-opacity=".2" d="M0 112c24-36 74-44 108-17 26-41 92-39 112 7 46-13 79 13 78 46H0v-36Zm813-54c17-27 53-31 77-11 22-29 65-25 78 7 35-10 62 10 61 34H797c0-14 6-24 16-30Z"/>
+  <path fill="#4F9C82" fill-opacity=".25" d="m0 262 87-59 83 44 105-69 101 78 108-40 114 55 91-75 119 60 93-72 99 64v112H0z"/>
+  <path fill="#D28E59" fill-opacity=".75" d="m0 275 102-43 103 27 115-53 101 46 107-23 106 38 114-48 99 36 123-57 130 55v107H0z"/>
+  <g fill="#B86F4A">
+    <path d="M0 275h105v85H0zM105 253h122v107H105zM227 277h108v83H227zM335 258h126v102H335zM461 280h117v80H461zM578 250h112v110H578zM690 277h121v83H690zM811 257h111v103H811zM922 279h126v81H922zM1048 250h152v110h-152z"/>
+  </g>
+  <g fill="#E7B271">
+    <path d="M20 291h62v69H20zM125 269h81v91h-81zM246 292h70v68h-70zM356 275h83v85h-83zM480 294h78v66h-78zM596 267h76v93h-76zM710 292h80v68h-80zM833 274h66v86h-66zM943 294h84v66h-84zM1072 268h103v92h-103z"/>
+  </g>
+  <g fill="#FFF0CC" fill-opacity=".88">
+    <path d="M39 314h23v22H39zM145 290h25v24h-25zM181 290h14v24h-14zM267 310h24v24h-24zM375 296h26v24h-26zM415 296h15v24h-15zM500 311h24v25h-24zM615 289h25v25h-25zM737 309h23v25h-23zM848 295h24v25h-24zM962 311h25v25h-25zM1100 291h28v25h-28z"/>
+  </g>
+  <g fill="#28644C">
+    <path d="M0 360V330h17v-20h8v20h17v30zm117 0v-36h14v-24h8v24h14v36zm247 0v-36h14v-25h8v25h14v36zm693 0v-34h15v-28h8v28h15v34zm112 0v-39h14v-24h8v24h14v39z"/>
+    <path d="M43 301c-11-29-31-45-43-50 27 4 45 21 54 50zm15 0c2-24 13-43 30-53-11 17-15 34-14 53zm1038-38c14-27 36-40 57-42-26 12-38 26-43 42zm17 1c8-23 24-38 44-44-19 15-29 29-31 44z"/>
+  </g>
+  <g fill="url(#foreground)">
+    <path d="M0 343h1200v17H0z"/>
+    <path d="M492 360v-63c0-55 44-99 99-99s99 44 99 99v63z"/>
+    <path d="M467 301c0-70 55-127 124-127s124 57 124 127h-24c0-56-45-103-100-103s-100 47-100 103z"/>
+    <path d="M573 174a18 18 0 1 1 36 0v24h-36zm-4-6 22-20 22 20z"/>
+    <path d="M452 360V281h-20v-15h20v-24h-12l22-25 22 25h-12v24h20v15h-20v79zm278 0V281h-20v-15h20v-24h-12l22-25 22 25h-12v24h20v15h-20v79z"/>
+    <path d="M422 360V279h92v81zm296 0V279h92v81z"/>
+  </g>
+  <g fill="url(#arches)">
+    <path d="M492 297h198v63H492z"/>
+    <path d="M422 310h92v50h-92zm296 0h92v50h-92z"/>
+  </g>
+  <g fill="#F4DDAA">
+    <path d="M579 360v-47a30 30 0 0 1 60 0v47z"/>
+    <path d="M572 316c0-31 17-53 37-53s37 22 37 53h-12c0-23-11-39-25-39s-25 16-25 39z"/>
+    <path d="M602 263a7 7 0 1 1 14 0v8h-14zm-2-3 9-9 9 9z"/>
+  </g>
+  <path fill="#173D33" fill-opacity=".25" d="M0 350h1200v10H0z"/>
+</svg>

@@ -21,6 +21,7 @@ import Library from './pages/Library';
 import YouTubePage from './pages/YouTube';
 import About from './pages/About';
 import AfterSalah from './pages/AfterSalah';
+import NearbyMasjids from './pages/NearbyMasjids';
 
 // Scroll restoration component
 function ScrollToTop() {
@@ -73,10 +74,11 @@ export default function App() {
                   <Route path="/youtube" element={<YouTubePage />} />
                   <Route path="/about" element={<About />} />
                   <Route path="/after-salah" element={<AfterSalah />} />
+                  <Route path="/nearby-masjids" element={<NearbyMasjids />} />
                 </Routes>
               </motion.div>
             </AnimatePresence>
-            <Footer />
+            {location.pathname !== '/nearby-masjids' && <Footer />}
             <GlobalSearch />
           </div>
         </SearchProvider>
