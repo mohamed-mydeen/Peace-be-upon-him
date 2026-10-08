@@ -1,0 +1,119 @@
+.reciter-picker {
+  position: relative;
+  width: 100%;
+  max-width: 22rem;
+  z-index: 2;
+}
+
+.reciter-picker-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: 46px;
+  padding: 0.65rem 0.85rem;
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-bg-secondary) 72%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reciter-picker-trigger:hover,
+.reciter-picker-trigger.is-open {
+  border-color: color-mix(in srgb, var(--color-primary) 46%, var(--color-border));
+  background: var(--color-bg-card);
+}
+
+.reciter-picker-trigger:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--color-primary) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.reciter-picker-value {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.reciter-picker-chevron {
+  flex: 0 0 auto;
+  color: var(--color-text-muted);
+  transition: transform 160ms ease;
+}
+
+.reciter-picker-trigger.is-open .reciter-picker-chevron {
+  transform: rotate(180deg);
+}
+
+.reciter-picker-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  z-index: 20;
+  width: 100%;
+  max-height: min(18rem, 55vh);
+  margin: 0;
+  padding: 0.35rem;
+  overflow-y: auto;
+  list-style: none;
+  color: var(--color-text-primary);
+  background: color-mix(in srgb, var(--color-bg-card) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-border) 78%, transparent);
+  border-radius: 16px;
+  box-shadow: 0 14px 36px rgb(0 0 0 / 18%), 0 2px 8px rgb(0 0 0 / 8%);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  backdrop-filter: blur(22px) saturate(1.5);
+  animation: reciter-menu-appear 150ms ease-out;
+}
+
+.reciter-picker-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 44px;
+  padding: 0.65rem 0.75rem;
+  border-radius: 11px;
+  color: var(--color-text-primary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reciter-picker-option.is-active,
+.reciter-picker-option:hover {
+  background: color-mix(in srgb, var(--color-primary) 9%, var(--color-bg-card));
+}
+
+.reciter-picker-option.is-selected {
+  color: var(--color-primary);
+  font-weight: var(--weight-semibold);
+}
+
+@keyframes reciter-menu-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reciter-picker-trigger,
+  .reciter-picker-chevron {
+    transition: none;
+  }
+
+  .reciter-picker-menu {
+    animation: none;
+  }
+}

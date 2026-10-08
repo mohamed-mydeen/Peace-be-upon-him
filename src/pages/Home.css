@@ -4,7 +4,7 @@
 
 /* ── HERO ──────────────────────────────────────────────────────────────── */
 .hero-section {
-  padding: var(--space-20) 0 var(--space-16);
+  padding: var(--space-10) 0 var(--space-12);
   background: var(--color-bg-secondary);
   border-bottom: var(--border-width) solid var(--color-border);
   text-align: center;
@@ -14,7 +14,7 @@
 
 @media (max-width: 767px) {
   .hero-section {
-    padding: var(--space-12) 0 var(--space-8);
+    padding: var(--space-5) 0 var(--space-6);
   }
 }
 
@@ -52,7 +52,7 @@
   font-weight: var(--weight-bold);
   color: var(--color-text-primary);
   line-height: 1.15;
-  margin-bottom: var(--space-3);
+  margin-bottom: var(--space-2);
   animation: fade-in 400ms 80ms ease both;
 }
 

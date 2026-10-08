@@ -107,11 +107,6 @@ export default function Home() {
       <section className="hero-section" aria-label="Channel introduction">
         <div className="container">
           <div className="hero-inner">
-            <div className="hero-badge">
-              <MonitorPlay size={14} aria-hidden="true" />
-              <span>Islamic Reminders in Tamil</span>
-            </div>
-
             <h1 className="hero-title">
               Peace Be Upon Him
             </h1>
@@ -169,7 +164,6 @@ export default function Home() {
               { to: '/dua', label: 'Dua', tamil: 'துஆ', arabic: 'دعاء', color: '#c8973a' },
               { to: '/dhikr', label: 'Dhikr', tamil: 'திக்ர்', arabic: 'ذكر', color: '#8e44ad' },
               { to: '/after-salah', label: 'After Salah', tamil: 'தொழுகைக்குப் பின்', arabic: 'بعد الصلاة', color: '#c0392b' },
-              { to: '/explore', label: 'Explore', tamil: 'கண்டறி', arabic: 'استكشاف', color: '#16a085' },
               { to: '/library', label: 'Library', tamil: 'நூலகம்', arabic: 'مكتبة', color: '#e67e22' },
             ].map(({ to, label, tamil, arabic, color }) => (
               <Link key={to} to={to} className="quick-nav-card" id={`quick-nav-${label.toLowerCase()}`}>

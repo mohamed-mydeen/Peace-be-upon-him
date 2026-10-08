@@ -13,6 +13,7 @@ export const TRANSLATIONS = {
     home: 'முகப்பு',
     quran: 'குர்ஆன்',
     hadith: 'ஹதீஸ்',
+    nearbyMasjids: 'அருகிலுள்ள மஸ்ஜித்கள்',
     dua: 'துஆ',
     dhikr: 'திக்ர்',
     explore: 'கண்டறி',
@@ -53,6 +54,7 @@ export const TRANSLATIONS = {
     home: 'Home',
     quran: 'Quran',
     hadith: 'Hadith',
+    nearbyMasjids: 'Nearby Masjids',
     dua: 'Dua',
     dhikr: 'Dhikr',
     explore: 'Explore',
@@ -93,6 +95,7 @@ export const TRANSLATIONS = {
     home: 'الرئيسية',
     quran: 'القرآن',
     hadith: 'الحديث',
+    nearbyMasjids: 'المساجد القريبة',
     dua: 'الدعاء',
     dhikr: 'الذكر',
     explore: 'استكشف',
@@ -129,4 +132,3 @@ export const TRANSLATIONS = {
     dark: 'داكن',
   },
 };
-

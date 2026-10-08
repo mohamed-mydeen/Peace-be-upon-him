@@ -13,10 +13,15 @@ export async function fetchDuasData() {
 export function searchDuas(duas, query) {
   if (!query) return duas;
   const q = query.toLowerCase();
-  return duas.filter(d => 
-    d.title?.toLowerCase().includes(q) || 
-    d.meaning_english?.toLowerCase().includes(q) ||
-    d.meaning_tamil?.includes(q) ||
-    d.transliteration?.toLowerCase().includes(q)
-  );
+  return duas.filter(dua => [
+    dua.title,
+    dua.tamil,
+    dua.meaning_english,
+    dua.meaning_tamil,
+    dua.transliteration,
+    dua.notes,
+    dua.note,
+    dua.category,
+    ...(Array.isArray(dua.keywords) ? dua.keywords : []),
+  ].some(value => typeof value === 'string' && value.toLowerCase().includes(q)));
 }

@@ -4,10 +4,11 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 // Providers
 import {
+  LanguageProvider,
   ThemeProvider,
+  QuranAudioSettingsProvider,
   BookmarkProvider,
   SearchProvider,
-  LanguageProvider
 } from './context/AppContext';
 
 // Shared Components
@@ -37,6 +38,8 @@ import About from './pages/About';
 import AfterSalah from './pages/AfterSalah';
 import Settings from './pages/Settings';
 import NearbyMasjids from './pages/NearbyMasjids';
+import Lessons from './pages/Lessons';
+import NamesOfAllah from './pages/NamesOfAllah';
 
 // Scroll restoration
 function ScrollToTop() {
@@ -53,93 +56,56 @@ export default function App() {
   const location = useLocation();
 
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <BookmarkProvider>
-          <SearchProvider>
-            <div className="app-container">
-              <ScrollToTop />
-
-              <Navbar />
-
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={location.pathname}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{
-                    duration: 0.25,
-                    ease: 'easeOut'
-                  }}
-                  style={{
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                >
-                  <Routes location={location}>
-
-                    {/* Home */}
-                    <Route path="/" element={<Home />} />
-
-                    {/* Quran */}
-                    <Route path="/quran" element={<QuranIndex />} />
-                    <Route path="/quran/:id" element={<QuranSurah />} />
-
-                    {/* Hadith */}
-                    <Route path="/hadith" element={<HadithIndex />} />
-                    <Route
-                      path="/hadith/search"
-                      element={<HadithSearchPage />}
-                    />
-                    <Route
-                      path="/hadith/categories/:id"
-                      element={<HadithCategoryDetail />}
-                    />
-                    <Route
-                      path="/hadith/:id"
-                      element={<HadithCollection />}
-                    />
-                    <Route
-                      path="/hadith/:id/book/:bookId"
-                      element={<HadithBook />}
-                    />
-
-                    {/* Other Features */}
-                    <Route path="/dua" element={<Dua />} />
-                    <Route path="/dhikr" element={<Dhikr />} />
-                    <Route path="/explore" element={<Explore />} />
-                    <Route
-                      path="/explore/:topic"
-                      element={<Explore />}
-                    />
-                    <Route path="/library" element={<Library />} />
-                    <Route path="/youtube" element={<YouTubePage />} />
-                    <Route path="/about" element={<About />} />
-                    <Route
-                      path="/after-salah"
-                      element={<AfterSalah />}
-                    />
-                    <Route
-                      path="/settings"
-                      element={<Settings />}
-                    />
-                    <Route
-                      path="/nearby-masjids"
-                      element={<NearbyMasjids />}
-                    />
-
-                  </Routes>
-                </motion.div>
-              </AnimatePresence>
-
-              <Footer />
-              <GlobalSearch />
-            </div>
-          </SearchProvider>
-        </BookmarkProvider>
-      </ThemeProvider>
-    </LanguageProvider>
+<LanguageProvider>
+  <ThemeProvider>
+    <QuranAudioSettingsProvider>
+      <BookmarkProvider>
+        <SearchProvider>
+          <div className="app-container">
+            <ScrollToTop />
+            <Navbar />
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: 'easeOut' }}
+                style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+              >
+                <Routes location={location}>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/quran" element={<QuranIndex />} />
+                  <Route path="/quran/:id" element={<QuranSurah />} />
+                  <Route path="/hadith" element={<HadithIndex />} />
+                  <Route path="/hadith/search" element={<HadithSearchPage />} />
+                  <Route path="/hadith/categories/:id" element={<HadithCategoryDetail />} />
+                  <Route path="/hadith/:id" element={<HadithCollection />} />
+                  <Route path="/hadith/:id/book/:bookId" element={<HadithBook />} />
+                  <Route path="/dua" element={<Dua />} />
+                  <Route path="/dhikr" element={<Dhikr />} />
+                  <Route path="/explore" element={<Explore />} />
+                  <Route path="/explore/:topic" element={<Explore />} />
+                  <Route path="/library" element={<Library />} />
+                  <Route path="/youtube" element={<YouTubePage />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/after-salah" element={<AfterSalah />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="/nearby-masjids" element={<NearbyMasjids />} />
+                  <Route path="/lessons" element={<Lessons />} />
+                  <Route path="/lessons/:subjectId" element={<Lessons />} />
+                  <Route path="/lessons/:subjectId/:lessonId" element={<Lessons />} />
+                  <Route path="/names-of-allah" element={<NamesOfAllah />} />
+                </Routes>
+              </motion.div>
+            </AnimatePresence>
+            {location.pathname === '/' && <Footer />}
+            <GlobalSearch />
+          </div>
+        </SearchProvider>
+      </BookmarkProvider>
+    </QuranAudioSettingsProvider>
+  </ThemeProvider>
+</LanguageProvider>
   );
 }

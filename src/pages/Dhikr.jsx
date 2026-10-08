@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Hash, RotateCcw, Plus, Activity, Loader2 } from 'lucide-react';
+import { RotateCcw, Plus, Loader2 } from 'lucide-react';
 import { fetchDhikrData, getDhikrBySession } from '../services/dhikr';
+import PageHero from '../components/PageHero';
+import dhikrBanner from '../assets/dhikr-banner.svg';
 import './Dhikr.css';
 
 export default function Dhikr() {
@@ -74,17 +76,16 @@ export default function Dhikr() {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container" style={{ maxWidth: '800px' }}>
-        <div className="page-header text-center" style={{ textAlign: 'center' }}>
-          <div className="dhikr-header-icon"><Activity size={32} /></div>
-          <h1 className="page-title">Dhikr Counter</h1>
-          <p className="page-description tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>
-            திக்ர் கவுண்டர் — அல்லாஹ்வை நினைவுகூருதல்
-          </p>
-          <div style={{ marginTop: '1rem' }}>
-            <Link to="/after-salah" className="btn btn-primary" style={{ backgroundColor: '#c0392b', color: 'white' }}>
-               After Salah Dhikr
-            </Link>
-          </div>
+        <PageHero
+          image={dhikrBanner}
+          title="Dhikr Counter"
+          description="திக்ர் கவுண்டர் — அல்லாஹ்வை நினைவுகூருதல்"
+          className="dhikr-page-hero"
+        />
+        <div className="dhikr-hero-actions">
+          <Link to="/after-salah" className="btn btn-primary dhikr-hero-action">
+            After Salah Dhikr
+          </Link>
         </div>
 
         {loading ? (

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" fill="none">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#162B35"/>
+      <stop offset="1" stop-color="#37695C"/>
+    </linearGradient>
+    <linearGradient id="book" x1="600" y1="134" x2="600" y2="298" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F6E7BD"/>
+      <stop offset="1" stop-color="#CDAF72"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(0 220 -370 0 600 172)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#DDBD77" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#DDBD77" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="stars" width="108" height="82" patternUnits="userSpaceOnUse">
+      <circle cx="14" cy="18" r="1.5" fill="#FFF0CF" fill-opacity=".55"/>
+      <circle cx="74" cy="51" r="1" fill="#FFF0CF" fill-opacity=".38"/>
+      <path d="M43 8v7m-3.5-3.5h7" stroke="#FFF0CF" stroke-opacity=".35"/>
+    </pattern>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1200v360H0z"/>
+  <path fill="url(#glow)" d="M0 0h1200v360H0z"/>
+  <path fill="url(#stars)" d="M0 0h1200v275H0z"/>
+  <circle cx="936" cy="91" r="43" fill="#F5E4B5" fill-opacity=".88"/>
+  <circle cx="954" cy="78" r="42" fill="#1B3940"/>
+  <path d="M0 274c133-35 207-20 309 7 103 27 168 25 287-2 114-26 202-30 317-4 112 26 184 18 287-9v94H0v-86Z" fill="#21463D"/>
+  <path d="M0 316c175-38 288-18 409 10 145 34 250 4 384-10 157-17 270 25 407-8v52H0v-44Z" fill="#142F2B"/>
+  <g opacity=".48" stroke="#D6BF86">
+    <path d="M102 288v-54m-18 54v-43m36 43v-43m-27-11 9-20 9 20m-36 11 9-19 9 19"/>
+    <path d="M1070 284v-67m-22 67v-49m44 49v-49m-33-18 11-24 11 24m-44 18 11-22 11 22"/>
+  </g>
+  <path d="m468 252 132-82 132 82v63H468v-63Z" fill="#785C36" stroke="#E4CF9B" stroke-width="3"/>
+  <path d="M600 174v141" stroke="#563E27" stroke-width="5"/>
+  <path d="M479 244c39-37 80-57 121-60v116c-43 3-84 22-121 56V244Zm242 0c-39-37-80-57-121-60v116c43 3 84 22 121 56V244Z" fill="url(#book)" stroke="#FFF0C9" stroke-width="3"/>
+  <path d="M497 250c28-23 58-36 89-40m-89 56c28-23 58-36 89-40m-89 57c28-23 58-36 89-40m117 7c-28-23-58-36-89-40m89 56c-28-23-58-36-89-40m89 57c-28-23-58-36-89-40" stroke="#8D7446" stroke-opacity=".56" stroke-width="3" stroke-linecap="round"/>
+  <path d="M520 322h160" stroke="#DBBD7B" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+</svg>

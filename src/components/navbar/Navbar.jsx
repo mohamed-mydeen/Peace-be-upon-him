@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
-  Bookmark, ChevronRight, Settings, MapPin
+  Settings, MapPin
 } from 'lucide-react';
 import { useTheme, useSearch, useLang } from '../../context/AppContext';
 import '../../styles/navbar.css';
@@ -12,10 +12,10 @@ const NAV_LINKS = [
   { to: '/', key: 'home', icon: Home, exact: true },
   { to: '/quran', key: 'quran', icon: BookOpen },
   { to: '/hadith', key: 'hadith', icon: MessageSquare },
+  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
   { to: '/dua', key: 'dua', icon: Heart },
   { to: '/dhikr', key: 'dhikr', icon: Hash },
   { to: '/explore', key: 'explore', icon: Compass },
-  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
   { to: '/library', key: 'library', icon: Library },
   { to: '/youtube', key: 'youtube', icon: MonitorPlay },
 ];
@@ -40,7 +40,7 @@ const MENU_LINKS = [
 export default function Navbar() {
   const { theme, toggle } = useTheme();
   const { open: openSearch } = useSearch();
-  const { t, lang } = useLang();
+  const { t } = useLang();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const location = useLocation();
@@ -52,6 +52,15 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => { setMenuOpen(false); }, [location]);
+
+  useEffect(() => {
+    if (!menuOpen) return undefined;
+    const closeOnEscape = event => {
+      if (event.key === 'Escape') setMenuOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [menuOpen]);
 
   return (
     <>
@@ -105,6 +114,15 @@ export default function Navbar() {
               {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
             </button>
 
+            <NavLink
+              to="/settings"
+              className={({ isActive }) => `theme-toggle navbar-settings-link${isActive ? ' active' : ''}`}
+              aria-label="Settings"
+              title="Settings"
+            >
+              <Settings size={16} aria-hidden="true" />
+            </NavLink>
+
             {/* Mobile hamburger */}
             <button
               className="navbar-hamburger"
@@ -138,7 +156,9 @@ export default function Navbar() {
           <button
             className={`bottom-nav-item${menuOpen ? ' active' : ''}`}
             onClick={() => setMenuOpen(v => !v)}
-            aria-label="More menu"
+            aria-label={t('more')}
+            aria-expanded={menuOpen}
+            aria-haspopup="dialog"
           >
             <div className="bottom-nav-item-icon">
               <Menu size={20} aria-hidden="true" />
@@ -158,9 +178,11 @@ export default function Navbar() {
       {/* Mobile drawer */}
       <div
         className={`mobile-menu-drawer${menuOpen ? ' open' : ''}`}
-        role="dialog"
+        role={menuOpen ? 'dialog' : undefined}
         aria-label="Menu"
-        aria-modal="true"
+        aria-modal={menuOpen || undefined}
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
       >
         <div className="mobile-menu-header">
           <span className="mobile-menu-title">{t('morePages')}</span>

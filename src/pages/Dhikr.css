@@ -1,15 +1,19 @@
 /* Dhikr Page Styles */
 
-.dhikr-header-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 64px;
-  height: 64px;
-  background: var(--color-primary-subtle);
-  color: var(--color-primary);
-  border-radius: var(--radius-full);
-  margin-bottom: var(--space-4);
+.dhikr-hero-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin: calc(-1 * var(--space-2)) 0 var(--space-4);
+}
+
+.dhikr-hero-action {
+  min-height: 40px;
+}
+
+@media (max-width: 520px) {
+  .dhikr-hero-actions {
+    margin-top: calc(-1 * var(--space-1));
+  }
 }
 
 /* Sessions */

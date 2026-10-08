@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" fill="none">
+  <defs>
+    <linearGradient id="dawn" x2="0" y2="1">
+      <stop stop-color="#263A3B"/>
+      <stop offset="1" stop-color="#6B755B"/>
+    </linearGradient>
+    <linearGradient id="arch" x1="600" y1="45" x2="600" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E9D9AC"/>
+      <stop offset="1" stop-color="#A88756"/>
+    </linearGradient>
+    <radialGradient id="light" cx="0" cy="0" r="1" gradientTransform="matrix(0 220 -410 0 600 180)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2D794" stop-opacity=".4"/>
+      <stop offset="1" stop-color="#F2D794" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="stars" width="94" height="72" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="16" r="1.4" fill="#FFF1CE" fill-opacity=".52"/>
+      <circle cx="72" cy="49" r="1" fill="#FFF1CE" fill-opacity=".36"/>
+    </pattern>
+  </defs>
+  <path fill="url(#dawn)" d="M0 0h1200v360H0z"/>
+  <path fill="url(#light)" d="M0 0h1200v360H0z"/>
+  <path fill="url(#stars)" d="M0 0h1200v260H0z"/>
+  <circle cx="936" cy="85" r="43" fill="#F2E2B9" fill-opacity=".9"/>
+  <circle cx="954" cy="70" r="42" fill="#2D4745"/>
+  <path d="M0 290c128-35 227-15 324 8 124 30 198 20 306-5 136-32 233-28 359 2 79 19 146 16 211-6v71H0v-70Z" fill="#325449"/>
+  <path d="M0 328c165-33 282-13 404 12 152 31 251 1 392-12 169-16 266 23 404-9v41H0v-32Z" fill="#1C3831"/>
+  <path d="M410 360V177c0-106 85-192 190-192s190 86 190 192v183H410Z" fill="url(#arch)" fill-opacity=".94"/>
+  <path d="M458 360V183c0-80 63-145 142-145s142 65 142 145v177H458Z" fill="#314A43"/>
+  <path d="M500 360V189c0-56 45-101 100-101s100 45 100 101v171h-200Z" fill="#213B36"/>
+  <path d="M430 181c0-95 76-171 170-171s170 76 170 171" stroke="#F0DCA9" stroke-opacity=".72" stroke-width="7"/>
+  <path d="M557 360V252a43 43 0 0 1 86 0v108h-86Z" fill="#D7B87B"/>
+  <path d="M546 260c0-48 24-79 54-79s54 31 54 79" stroke="#E6D19B" stroke-width="9"/>
+  <path d="M576 181a24 24 0 1 1 48 0v13h-48zm-7-8 31-28 31 28z" fill="#D7B87B"/>
+  <path d="M155 360v-88c0-45 36-81 81-81s81 36 81 81v88m647 0v-88c0-45 36-81 81-81s81 36 81 81v88" fill="#213B36" stroke="#D7B87B" stroke-opacity=".64" stroke-width="8"/>
+  <path d="M0 349h1200v11H0z" fill="#132E2A"/>
+</svg>

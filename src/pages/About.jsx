@@ -1,15 +1,17 @@
 import { Link } from 'react-router-dom';
+import PageHero from '../components/PageHero';
+import aboutBanner from '../assets/about-banner.svg';
 
 export default function About() {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container" style={{ maxWidth: '800px' }}>
-        <div className="page-header">
-          <h1 className="page-title">About Peace be upon him</h1>
-          <p className="page-description tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>
-            நூர் தமிழ் பற்றி — எங்கள் நோக்கம்
-          </p>
-        </div>
+        <PageHero
+          image={aboutBanner}
+          title="About Peace be upon him"
+          description="நூர் தமிழ் பற்றி — எங்கள் நோக்கம்"
+          className="about-page-hero"
+        />
 
         <div className="prose card" style={{ padding: '2rem' }}>
           <h2>Our Mission</h2>

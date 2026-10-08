@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { TRANSLATIONS, LANGUAGES } from '../i18n/translations';
+import { QURAN_RECITERS } from '../services/quran';
 
 // ============================================
 // LANGUAGE CONTEXT
@@ -16,7 +17,7 @@ export function LanguageProvider({ children }) {
     document.documentElement.setAttribute('dir', langMeta?.dir || 'ltr');
   }, [lang]);
 
-  const t = useCallback((key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS['en']?.[key] || key, [lang]);
+  const t = useCallback((key) => TRANSLATIONS[lang]?.[key] || TRANSLATIONS.en?.[key] || key, [lang]);
 
   return (
     <LanguageContext.Provider value={{ lang, setLang, t, languages: LANGUAGES }}>
@@ -58,6 +59,39 @@ export function ThemeProvider({ children }) {
 export const useTheme = () => {
   const ctx = useContext(ThemeContext);
   if (!ctx) throw new Error('useTheme must be used inside ThemeProvider');
+  return ctx;
+};
+
+// ============================================
+// QURAN AUDIO SETTINGS CONTEXT
+// ============================================
+const QuranAudioSettingsContext = createContext(null);
+const DEFAULT_RECITER_ID = '7';
+
+function loadReciterId() {
+  const savedId = localStorage.getItem('quran_reciter');
+  return QURAN_RECITERS.some(reciter => String(reciter.id) === savedId)
+    ? savedId
+    : DEFAULT_RECITER_ID;
+}
+
+export function QuranAudioSettingsProvider({ children }) {
+  const [reciterId, setReciterId] = useState(loadReciterId);
+
+  useEffect(() => {
+    localStorage.setItem('quran_reciter', reciterId);
+  }, [reciterId]);
+
+  return (
+    <QuranAudioSettingsContext.Provider value={{ reciterId, setReciterId }}>
+      {children}
+    </QuranAudioSettingsContext.Provider>
+  );
+}
+
+export const useQuranAudioSettings = () => {
+  const ctx = useContext(QuranAudioSettingsContext);
+  if (!ctx) throw new Error('useQuranAudioSettings must be used inside QuranAudioSettingsProvider');
   return ctx;
 };
 

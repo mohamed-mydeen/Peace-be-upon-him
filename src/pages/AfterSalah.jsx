@@ -117,6 +117,11 @@ export default function AfterSalah() {
                     <p className="tamil-text" style={{ fontFamily: 'var(--font-tamil)', lineHeight: '1.6' }}>
                       {item.tamil}
                     </p>
+                    {item.note && (
+                      <p style={{ marginTop: '0.75rem', color: 'var(--text-secondary)', fontSize: '0.875rem' }}>
+                        {item.note}
+                      </p>
+                    )}
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.875rem', color: 'var(--text-secondary)' }}>
