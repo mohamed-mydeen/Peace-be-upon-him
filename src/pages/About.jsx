@@ -49,18 +49,7 @@ export default function About() {
             இந்த தளத்தில் வழங்கப்படும் தகவல்கள் கல்வி மற்றும் நினைவூட்டலுக்காக மட்டுமே. சிக்கலான மார்க்க சட்டங்கள் (பத்வா) அல்லது குறிப்பிட்ட வாழ்க்கை சூழ்நிலைகளுக்கு தகுந்த ஆலிம்களை (மார்க்க அறிஞர்களை) அணுகவும்.
           </p>
 
-          <div className="divider" />
 
-          <h2 id="contact">Setup & Tech Stack</h2>
-          <p>
-            This is a modern React web application designed with a mobile-first approach. 
-          </p>
-          <p>
-            <strong>To enable YouTube features:</strong> Create a <code>.env</code> file in the root of the project with:
-            <br/><br/>
-            <code>VITE_YOUTUBE_API_KEY=your_api_key</code><br/>
-            <code>VITE_YOUTUBE_CHANNEL_ID=your_channel_id</code>
-          </p>
         </div>
       </div>
     </main>
