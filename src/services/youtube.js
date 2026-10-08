@@ -24,14 +24,27 @@ async function fetchYT(endpoint, params = {}) {
   const cached = ytCache.get(cacheKey);
   if (cached && Date.now() - cached.ts < CACHE_TTL) return cached.data;
 
-  const res = await fetch(url.toString());
-  if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(err?.error?.message || `YouTube API error ${res.status}`);
+  try {
+    const res = await fetch(url.toString());
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      if (res.status >= 500) {
+        throw new Error("Unable to connect to the server. Please try again later.");
+      }
+      if (res.status === 403 || res.status === 429) {
+        throw new Error("YouTube API limit reached. Please try again later.");
+      }
+      throw new Error(err?.error?.message || `Failed to load data (Error ${res.status}).`);
+    }
+    const data = await res.json();
+    ytCache.set(cacheKey, { data, ts: Date.now() });
+    return data;
+  } catch (err) {
+    if (err.name === 'TypeError' && err.message.includes('fetch')) {
+      throw new Error("Please check your internet connection and try again.");
+    }
+    throw err;
   }
-  const data = await res.json();
-  ytCache.set(cacheKey, { data, ts: Date.now() });
-  return data;
 }
 
 // Get channel info + statistics
