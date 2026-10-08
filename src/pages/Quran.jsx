@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Link, useParams, useNavigate } from 'react-router-dom';
-import { Search, BookOpen, ChevronRight, ArrowLeft, Bookmark, Share2, Copy } from 'lucide-react';
-import { getSurahs, getSurah, getAyahs } from '../services/quran';
+import { useState, useEffect, useRef } from 'react';
+import { Link, useParams } from 'react-router-dom';
+import { Search, ChevronLeft, ChevronRight, ArrowLeft, Bookmark, Copy, Play } from 'lucide-react';
+import { getSurahs, getSurah, getAyahs, getSurahAyahAudio } from '../services/quran';
 import { useBookmarks } from '../context/AppContext';
 import './Quran.css';
 
@@ -143,9 +143,12 @@ function SurahDetail({ surahId }) {
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
 
   // Audio state
-  const [playingIndex, setPlayingIndex] = useState(-1);
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = React.useRef(null);
+  const [audioTracks, setAudioTracks] = useState([]);
+  const [playingIndex, setPlayingIndex] = useState(-1);
+  const [audioLoading, setAudioLoading] = useState(true);
+  const [audioError, setAudioError] = useState('');
+  const audioRef = useRef(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -160,6 +163,28 @@ function SurahDetail({ surahId }) {
       .finally(() => setLoading(false));
   }, [surahId, page]);
 
+  useEffect(() => {
+    let cancelled = false;
+    setAudioTracks([]);
+    setPlayingIndex(-1);
+    setIsPlaying(false);
+    setAudioError('');
+    setAudioLoading(true);
+    getSurahAyahAudio(surahId)
+      .then(tracks => { if (!cancelled) setAudioTracks(tracks); })
+      .catch(e => {
+        if (!cancelled) setAudioError(e.message);
+      })
+      .finally(() => {
+        if (!cancelled) setAudioLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+      audioRef.current?.pause();
+    };
+  }, [surahId]);
+
   const copyAyah = (ayah) => {
     const text = ayah.translations?.find(t => t.resource_id === 819)?.text ||
                  ayah.translations?.[0]?.text || '';
@@ -167,49 +192,52 @@ function SurahDetail({ surahId }) {
   };
 
   // Audio Controls
+  const playAudioAt = (index) => {
+    const track = audioTracks[index];
+    const audio = audioRef.current;
+    if (!track || !audio) return;
+    const ayahNumber = Number(track.verseKey.split(':')[1]);
+    const trackPage = Math.floor((ayahNumber - 1) / 10) + 1;
+    if (trackPage !== page) setPage(trackPage);
+    setPlayingIndex(index);
+    setAudioError('');
+    audio.src = track.url;
+    audio.play().catch(e => {
+      setAudioError(`Unable to play Ayah ${track.verseKey}: ${e.message}`);
+      setIsPlaying(false);
+    });
+  };
+
   const togglePlay = () => {
-    if (ayahs.length === 0) return;
-    if (playingIndex === -1) {
-      setPlayingIndex(0);
-      setIsPlaying(true);
-    } else {
-      if (isPlaying) {
-        audioRef.current?.pause();
-        setIsPlaying(false);
-      } else {
-        audioRef.current?.play();
-        setIsPlaying(true);
-      }
+    if (!audioRef.current || audioLoading || audioTracks.length === 0) return;
+    if (isPlaying) {
+      audioRef.current.pause();
+      return;
     }
+    playAudioAt(playingIndex < 0 ? 0 : playingIndex);
   };
 
   const handleAudioEnded = () => {
-    if (playingIndex < ayahs.length - 1) {
-      setPlayingIndex(prev => prev + 1);
-    } else {
+    if (playingIndex + 1 < audioTracks.length) playAudioAt(playingIndex + 1);
+    else {
       setPlayingIndex(-1);
       setIsPlaying(false);
     }
   };
 
-  // Auto-scroll to active ayah
   useEffect(() => {
-    if (playingIndex >= 0 && isPlaying) {
-      const el = document.getElementById(`ayah-${ayahs[playingIndex]?.verse_number}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }
+    if (playingIndex < 0) return;
+    const verseKey = audioTracks[playingIndex]?.verseKey;
+    const ayahNumber = Number(verseKey?.split(':')[1]);
+    const activePage = Math.floor((ayahNumber - 1) / 10) + 1;
+    const activeAyah = ayahs.find(ayah => ayah.verse_key === verseKey);
+    if (activeAyah) {
+      document.getElementById(`ayah-${activeAyah.verse_number}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-  }, [playingIndex, isPlaying, ayahs]);
-
-  useEffect(() => {
-    if (audioRef.current && playingIndex >= 0 && isPlaying) {
-      audioRef.current.play().catch(e => {
-        console.warn('Audio play failed:', e);
-        setIsPlaying(false);
-      });
+    if (verseKey && !ayahs.some(ayah => ayah.verse_key === verseKey) && page !== activePage) {
+      setPage(activePage);
     }
-  }, [playingIndex, isPlaying]);
+  }, [playingIndex, audioTracks, ayahs, page]);
 
   if (error) return (
     <main className="page-wrapper"><div className="container">
@@ -248,14 +276,16 @@ function SurahDetail({ surahId }) {
             {/* Ayah-by-Ayah Audio Player */}
             <div className="surah-audio-player" style={{ marginTop: '1.5rem', background: 'var(--color-bg-card)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <p style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Recitation: Sheikh Bandar Baleela</p>
+                <p style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Recitation: Mishari Rashid al-Afasy</p>
                 <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
-                  {playingIndex >= 0 ? `Playing Ayah ${ayahs[playingIndex]?.verse_number}` : 'Ayah by Ayah Recitation'}
+                  {audioLoading ? 'Loading recitation...' : playingIndex >= 0 ? `Playing Ayah ${audioTracks[playingIndex]?.verseKey}` : 'Ayah-by-Ayah Recitation'}
                 </p>
               </div>
               <button 
                 className="btn btn-primary" 
                 onClick={togglePlay}
+                disabled={audioTracks.length === 0 || audioLoading}
+                aria-label={isPlaying ? 'Pause recitation' : 'Play recitation'}
                 style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
               >
                 {isPlaying ? (
@@ -265,14 +295,25 @@ function SurahDetail({ surahId }) {
                 )}
               </button>
             </div>
+            {audioError && <p className="error-detail" role="alert">{audioError}</p>}
             
             {/* Hidden audio element */}
             <audio 
               ref={audioRef}
-              src={playingIndex >= 0 && ayahs[playingIndex] ? `https://cdn.islamic.network/quran/audio/128/ar.bandarbaleela/${ayahs[playingIndex].id}.mp3` : ''}
               onEnded={handleAudioEnded}
               onPause={() => setIsPlaying(false)}
-              onPlay={() => setIsPlaying(true)}
+              onPlay={() => {
+                setIsPlaying(true);
+                setAudioError('');
+              }}
+              onError={() => {
+                const audioErrorCode = audioRef.current?.error?.code;
+                if (audioErrorCode) {
+                  setAudioError(`Recitation audio failed to load (media error ${audioErrorCode}).`);
+                  setIsPlaying(false);
+                }
+              }}
+              preload="none"
             />
           </div>
         )}
@@ -281,16 +322,16 @@ function SurahDetail({ surahId }) {
         <div className="ayahs-list">
           {loading
             ? Array(5).fill(0).map((_, i) => <AyahSkeleton key={i} />)
-            : ayahs.map((ayah, index) => {
+            : ayahs.map(ayah => {
               const tamilTrans = ayah.translations?.find(t => t.resource_id === 133);
               const englishTrans = ayah.translations?.find(t => t.resource_id === 20);
               const bk = isBookmarked('ayah', ayah.verse_key);
-              const isAyahPlaying = playingIndex === index;
+              const isAyahPlaying = audioTracks[playingIndex]?.verseKey === ayah.verse_key;
 
               return (
                 <article 
                   key={ayah.verse_key} 
-                  className={`ayah-card ${isAyahPlaying ? 'playing-highlight' : ''}`} 
+                  className={`ayah-card ${isAyahPlaying ? 'playing-highlight' : ''}`}
                   id={`ayah-${ayah.verse_number}`}
                   style={isAyahPlaying ? { borderColor: 'var(--color-primary)', boxShadow: '0 4px 12px rgba(26, 107, 58, 0.15)', transform: 'scale(1.02)', transition: 'all 0.3s ease' } : { transition: 'all 0.3s ease' }}
                 >
@@ -357,21 +398,23 @@ function SurahDetail({ surahId }) {
 
         {/* Pagination */}
         {pagination.total_pages > 1 && (
-          <div className="pagination">
+          <nav className="pagination" aria-label="Surah pages">
             <button
               className="page-btn"
               disabled={page === 1}
               onClick={() => setPage(p => p - 1)}
               aria-label="Previous page"
-            >‹</button>
-            <span className="page-btn active">{page} / {pagination.total_pages}</span>
+            ><ChevronLeft size={18} strokeWidth={2.5} /></button>
+            <span className="pagination-current" aria-live="polite">
+              {page} <span aria-hidden="true">/</span> {pagination.total_pages}
+            </span>
             <button
               className="page-btn"
               disabled={page >= pagination.total_pages}
               onClick={() => setPage(p => p + 1)}
               aria-label="Next page"
-            >›</button>
-          </div>
+            ><ChevronRight size={18} strokeWidth={2.5} /></button>
+          </nav>
         )}
 
         <p className="quran-attribution">

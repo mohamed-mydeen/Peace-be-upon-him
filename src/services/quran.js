@@ -40,6 +40,24 @@ export async function getAyahs(surahId, { page = 1 } = {}) {
   };
 }
 
+// Get verse-by-verse recitation audio for a Surah (Mishari Rashid al-Afasy).
+export async function getSurahAyahAudio(surahId) {
+  const url = `${BASE}/recitations/7/by_chapter/${surahId}?segments=false`;
+  const firstPage = await fetchWithCache(url);
+  const totalPages = firstPage.pagination?.total_pages || 1;
+  const remainingPages = await Promise.all(
+    Array.from({ length: totalPages - 1 }, (_, index) =>
+      fetchWithCache(`${url}&page=${index + 2}`),
+    ),
+  );
+  const audioFiles = [firstPage, ...remainingPages].flatMap(data => data.audio_files || []);
+  if (audioFiles.length === 0) throw new Error('Recitation audio is unavailable for this Surah.');
+  return audioFiles.map(({ verse_key, url }) => ({
+    verseKey: verse_key,
+    url: new URL(url, 'https://audio.qurancdn.com/').href,
+  }));
+}
+
 // Get single ayah
 export async function getAyah(surahId, ayahNum) {
   const url = `${BASE}/verses/by_key/${surahId}:${ayahNum}?language=en&translations=20,133&fields=text_uthmani`;
