@@ -217,7 +217,7 @@ export default function Home() {
             ? (
               <div className="yt-error">
                 <AlertCircle size={20} />
-                <span>Unable to load channel data: {error}</span>
+                <span>{error}</span>
               </div>
             )
             : channel && (
@@ -276,7 +276,7 @@ export default function Home() {
             ? (
               <div className="yt-error">
                 <AlertCircle size={20} />
-                <span>Unable to load videos: {error}</span>
+                <span>{error}</span>
               </div>
             )
             : videos.length > 0

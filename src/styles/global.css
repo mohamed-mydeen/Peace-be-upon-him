@@ -27,6 +27,11 @@ body {
   transition: background-color var(--transition-slow), color var(--transition-slow);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Disable text selection and copy to simulate native app */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 #root {
@@ -267,6 +272,12 @@ input, textarea, select {
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   outline: none;
   width: 100%;
+  
+  /* Re-enable text selection for input fields */
+  -webkit-user-select: auto;
+  -moz-user-select: auto;
+  -ms-user-select: auto;
+  user-select: auto;
 }
 
 input::placeholder, textarea::placeholder {
