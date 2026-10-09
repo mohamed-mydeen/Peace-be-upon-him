@@ -10,11 +10,13 @@ import {
   BookmarkProvider,
   SearchProvider,
 } from './context/AppContext';
+import { AuthProvider } from './context/AuthContext';
 
 // Shared Components
 import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import GlobalSearch from './components/search/GlobalSearch';
+import AuthModal from './components/auth/AuthModal';
 
 // Pages
 import Home from './pages/Home';
@@ -106,9 +108,12 @@ export default function App() {
     setHasStarted(true);
   };
 
+  const [showAuth, setShowAuth] = useState(false);
+
   useDisableBrowserZoomAndCopy();
 
   return (
+    <AuthProvider>
     <LanguageProvider>
       <ThemeProvider>
         <QuranAudioSettingsProvider>
@@ -119,7 +124,7 @@ export default function App() {
               ) : (
                 <div className="app-container">
                   <ScrollToTop />
-                  <Navbar />
+                  <Navbar onAuthClick={() => setShowAuth(true)} />
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={location.pathname}
@@ -158,6 +163,7 @@ export default function App() {
                   </AnimatePresence>
                   {location.pathname === '/' && <Footer />}
                   <GlobalSearch />
+                  {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
                 </div>
               )}
             </SearchProvider>
@@ -165,5 +171,6 @@ export default function App() {
         </QuranAudioSettingsProvider>
       </ThemeProvider>
     </LanguageProvider>
+    </AuthProvider>
   );
 }
