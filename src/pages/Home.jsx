@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpen, MessageSquare, Hand, Hexagon, BookMarked, Library,
-  MonitorPlay, Camera, Play, ExternalLink, Users, Eye, Video,
-  ChevronRight, AlertCircle, BarChart2
+  Camera, Play, Users, Eye, Video,
+  ChevronRight, AlertCircle
 } from 'lucide-react';
 import {
   getChannelInfo, getLatestVideos, formatCount, formatRelativeDate, formatDuration, isConfigured
