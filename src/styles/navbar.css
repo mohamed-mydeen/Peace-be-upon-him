@@ -187,7 +187,7 @@
 .navbar-hamburger:hover { background: #1b5543; color: #ffffff; }
 
 /* ============================================
-   BOTTOM NAV (MOBILE) — pill floating bar
+   BOTTOM NAV (MOBILE) — floating pill bar (Figma)
    ============================================ */
 .bottom-nav {
   display: none;
@@ -195,99 +195,100 @@
   right: clamp(12px, 4vw, 24px);
   bottom: calc(12px + env(safe-area-inset-bottom));
   left: clamp(12px, 4vw, 24px);
-  height: 68px;
-  padding: 5px;
-  background: #20332c;
-  border: 1px solid rgb(221 195 117 / 24%);
-  border-radius: 23px;
+  height: 58px;
+  padding: 5px 6px;
+  background: rgba(20, 61, 47, 0.96);
+  border: 1px solid rgba(35, 84, 65, 0.7);
+  border-radius: 999px;
   z-index: var(--z-sticky);
-  box-shadow: 0 10px 30px rgb(13 27 22 / 24%), 0 2px 8px rgb(13 27 22 / 16%);
-  -webkit-backdrop-filter: blur(18px);
-  backdrop-filter: blur(18px);
+  box-shadow: 0 8px 28px rgba(8, 23, 18, 0.5), 0 2px 8px rgba(8, 23, 18, 0.3);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
 }
 
 .bottom-nav-items {
   display: flex;
   height: 100%;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between;
   width: 100%;
   gap: 2px;
-  padding: 0 2px;
+  padding: 0;
 }
 
+/* Each nav item — horizontal icon + label layout */
 .bottom-nav-item {
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
+  gap: 5px;
   height: 100%;
-  padding: 3px 1px;
+  padding: 0 6px;
   text-decoration: none;
-  color: rgb(238 233 216 / 62%);
-  border-radius: 16px;
+  color: #88b6a1;
+  border-radius: 999px;
   transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
   cursor: pointer;
   background: none;
   border: none;
-  position: relative;
   -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
 }
 
 .bottom-nav-item:hover {
-  color: rgb(255 255 255 / 92%);
-  background: rgb(255 255 255 / 5%);
+  color: #c8e8d8;
 }
 
-.bottom-nav-item:active { transform: scale(0.96); }
+.bottom-nav-item:active { transform: scale(0.95); }
 
 .bottom-nav-item:focus-visible {
   outline: 2px solid #e6c766;
-  outline-offset: 1px;
+  outline-offset: 2px;
 }
 
-.bottom-nav-item.active { color: #e6c766; }
+/* Active item — filled sage-green capsule (Figma) */
+.bottom-nav-item.active {
+  background: #82aa94;
+  color: #0e3a2d;
+  flex: 0 0 auto;
+  padding: 0 14px;
+}
 
+/* Icon container — no stacking in new design */
 .bottom-nav-item-icon {
-  position: relative;
-  display: grid;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 27px;
-  margin-bottom: 2px;
-  transition: color var(--transition-fast), transform var(--transition-fast);
+  flex-shrink: 0;
+  width: auto;
+  height: auto;
+  margin-bottom: 0;
 }
 
+/* Remove old dot indicator — active pill replaces it */
 .bottom-nav-item.active .bottom-nav-item-icon::after {
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  width: 4px;
-  height: 4px;
-  content: '';
-  background: currentColor;
-  border-radius: 50%;
-  transform: translateX(-50%);
+  display: none;
 }
 
 .bottom-nav-item-label {
-  max-width: 100%;
-  overflow: hidden;
-  font-size: 10px;
-  font-weight: var(--weight-medium);
-  font-family: var(--font-tamil);
-  line-height: 1.25;
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-primary);
+  line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
+  overflow: hidden;
   transition: font-weight var(--transition-fast);
 }
 
-.bottom-nav-item.active .bottom-nav-item-label {
-  font-weight: var(--weight-bold);
+/* Inactive — hide label on very small screens to keep bar compact */
+@media (max-width: 360px) {
+  .bottom-nav-item:not(.active) .bottom-nav-item-label { display: none; }
 }
+
 
 /* ============================================
    MOBILE MENU DRAWER
