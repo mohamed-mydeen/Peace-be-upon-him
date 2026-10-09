@@ -69,11 +69,11 @@ export default function Navbar() {
       <nav className={`navbar${scrolled ? ' scrolled' : ''}`} role="navigation" aria-label="Main navigation">
         <div className="container navbar-inner">
           {/* Logo */}
-          <Link to="/" className="navbar-logo" aria-label="Islamic Reminders Tamil - Home">
+          <Link to="/" className="navbar-logo" aria-label="Peace be upon him - Home">
             <img src="/channels4_profile.jpg" alt="Peace be upon him Logo" className="navbar-logo-img" />
             <div className="navbar-logo-text">
-              <span className="navbar-logo-name">Peace be upon him</span>
-              <span className="navbar-logo-sub">இஸ்லாமிய அறிவு</span>
+              <span className="navbar-logo-name">Peace Be Upon Him</span>
+              <span className="navbar-logo-sub">@peacebeuponhim</span>
             </div>
           </Link>
 
