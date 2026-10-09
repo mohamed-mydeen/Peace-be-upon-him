@@ -9,6 +9,7 @@ import {
   getChannelInfo, getLatestVideos, formatCount, formatRelativeDate, formatDuration, isConfigured
 } from '../services/youtube';
 import PrayerTimes from '../components/prayer/PrayerTimes';
+import heroBg from '../assets/hero.png';
 import './Home.css';
 
 /* ── Skeleton helpers ── */
@@ -118,8 +119,8 @@ export default function Home() {
 
       {/* ── HERO BANNER ── */}
       <section className="hm-hero" aria-label="Channel introduction">
-        {/* Decorative background icon */}
-        <span className="hm-hero-bg-icon" aria-hidden="true">📖</span>
+        {/* Decorative background img */}
+        <img src={heroBg} alt="" className="hm-hero-bg-img" aria-hidden="true" />
 
         <div className="hm-hero-inner">
           <div className="hm-hero-pill arabic-text notranslate" dir="rtl" translate="no">

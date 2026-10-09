@@ -12,6 +12,17 @@
   overflow: hidden;
 }
 
+.prayer-bg-img {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  height: 90%;
+  width: auto;
+  opacity: 0.15;
+  pointer-events: none;
+  z-index: 0;
+}
+
 [data-theme="light"] .prayer-times-widget {
   background: #ffffff;
   border-color: #dde8e2;

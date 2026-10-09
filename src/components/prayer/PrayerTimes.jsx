@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Clock, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import masjidBg from '../../assets/masjid-banner.svg';
 import './PrayerTimes.css';
 
 const DISTRICTS = [
@@ -15,7 +16,7 @@ const PRAYERS = [
   { name: 'ASR',     arabic: 'العصر',  key: 'Asr'     },
   { name: 'MAGHRIB', arabic: 'المغرب', key: 'Maghrib'  },
   { name: 'ISHA',    arabic: 'العشاء', key: 'Isha'    },
-];
+];  
 
 function formatTime(time24) {
   if (!time24) return '';
@@ -92,6 +93,7 @@ export default function PrayerTimes() {
 
   return (
     <div className="prayer-times-widget">
+      <img src={masjidBg} alt="" className="prayer-bg-img" aria-hidden="true" />
       {/* Header */}
       <div className="prayer-header">
         <div className="prayer-title-wrap">

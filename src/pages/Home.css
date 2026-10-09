@@ -35,12 +35,13 @@
   border-color: rgba(26, 107, 58, 0.4);
 }
 
-.hm-hero-bg-icon {
+.hm-hero-bg-img {
   position: absolute;
-  right: -12px;
-  top: -18px;
-  font-size: 96px;
-  opacity: 0.055;
+  right: -5%;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 120%;
+  opacity: 0.15;
   pointer-events: none;
   user-select: none;
 }
