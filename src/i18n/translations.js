@@ -17,12 +17,17 @@ export const TRANSLATIONS = {
     dua: 'துஆ',
     dhikr: 'திக்ர்',
     explore: 'கண்டறி',
+    qibla: 'கிப்லா',
+    nearbyMasjids: 'அருகில் உள்ள மசூதி',
     library: 'நூலகம்',
     youtube: 'YouTube',
     about: 'பற்றி',
     search: 'தேடல்',
     more: 'மேலும்',
     morePages: 'மேலும் பக்கங்கள்',
+    qibla: 'கிப்லா',
+    nearbyMasjids: 'அருகிலுள்ள மசூதிகள்',
+
     settings: 'அமைப்புகள்',
     afterSalah: 'தொழுகைக்குப் பின்',
     // Settings Page
@@ -64,6 +69,9 @@ export const TRANSLATIONS = {
     search: 'Search',
     more: 'More',
     morePages: 'More Pages',
+    qibla: 'Qibla',
+    nearbyMasjids: 'Nearby Masjids',
+
     settings: 'Settings',
     afterSalah: 'After Salah',
     // Settings Page
@@ -105,6 +113,9 @@ export const TRANSLATIONS = {
     search: 'بحث',
     more: 'المزيد',
     morePages: 'صفحات أخرى',
+    qibla: 'القبلة',
+    nearbyMasjids: 'المساجد القريبة',
+
     settings: 'الإعدادات',
     afterSalah: 'بعد الصلاة',
     // Settings Page
