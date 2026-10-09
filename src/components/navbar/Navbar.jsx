@@ -3,7 +3,11 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
+<<<<<<< Updated upstream
   Settings, MapPin
+=======
+  Bookmark, ChevronRight, Settings, MapPin, Navigation2
+>>>>>>> Stashed changes
 } from 'lucide-react';
 import { useTheme, useSearch, useLang } from '../../context/AppContext';
 import '../../styles/navbar.css';
@@ -16,6 +20,7 @@ const NAV_LINKS = [
   { to: '/dua', key: 'dua', icon: Heart },
   { to: '/dhikr', key: 'dhikr', icon: Hash },
   { to: '/explore', key: 'explore', icon: Compass },
+  { to: '/qibla', key: 'qibla', icon: Navigation2 },
   { to: '/library', key: 'library', icon: Library },
   { to: '/youtube', key: 'youtube', icon: MonitorPlay },
 ];
@@ -23,11 +28,12 @@ const NAV_LINKS = [
 const BOTTOM_NAV = [
   { to: '/', key: 'home', icon: Home, exact: true },
   { to: '/quran', key: 'quran', icon: BookOpen },
-  { to: '/hadith', key: 'hadith', icon: MessageSquare },
+  { to: '/qibla', key: 'qibla', icon: Navigation2 },
   { to: '/explore', key: 'explore', icon: Compass },
 ];
 
 const MENU_LINKS = [
+  { to: '/qibla', key: 'qibla', icon: Navigation2 },
   { to: '/dua', key: 'dua', icon: Heart },
   { to: '/dhikr', key: 'dhikr', icon: Hash },
   { to: '/library', key: 'library', icon: Library },
