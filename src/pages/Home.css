@@ -430,16 +430,56 @@
   font-size: 0.85em;
   color: #e9a825;
 }
-.yt-error {
+/* ── Minimalist Error State ── */
+.hm-error-state {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4);
-  background: rgba(192,57,43,0.08);
-  border: 1px solid rgba(192,57,43,0.2);
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  background: rgba(134, 186, 165, 0.08);
   border-radius: 12px;
-  color: #e88080;
+  text-align: center;
+  color: #86baa5;
+}
+
+[data-theme="light"] .hm-error-state {
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
+}
+
+.hm-error-state p {
   font-size: var(--text-sm);
+  margin: 0 0 12px 0;
+}
+
+.hm-error-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: rgba(134, 186, 165, 0.15);
+  color: #9fd7bb;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.hm-error-retry:hover {
+  background: rgba(134, 186, 165, 0.25);
+  transform: translateY(-1px);
+}
+
+[data-theme="light"] .hm-error-retry {
+  background: rgba(0,0,0,0.05);
+  color: var(--color-text-primary);
+}
+
+[data-theme="light"] .hm-error-retry:hover {
+  background: rgba(0,0,0,0.08);
 }
 
 /* ── Responsive ── */

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import {
   BookOpen, MessageSquare, Hand, Hexagon, BookMarked, Library,
   Camera, Play, Users, Eye, Video,
-  ChevronRight, AlertCircle
+  ChevronRight, RefreshCw
 } from 'lucide-react';
 import {
   getChannelInfo, getLatestVideos, formatCount, formatRelativeDate, formatDuration, isConfigured
@@ -35,18 +35,28 @@ function VideoSkeleton() {
 
 function NotConfigured() {
   return (
-    <div className="yt-not-configured">
-      <AlertCircle size={36} className="yt-nc-icon" />
-      <h3 className="yt-nc-title">YouTube Integration Not Configured</h3>
-      <p className="yt-nc-desc">
-        Add <code>VITE_YOUTUBE_CHANNEL_ID</code> to your Vercel Environment Variables (and <code>YOUTUBE_API_KEY</code>) to enable YouTube channel integration.
-      </p>
-      <Link to="/about" className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }}>
-        Setup Instructions →
-      </Link>
-    </div>
-  );
-}
+      <div className="yt-not-configured">
+        <h3 className="yt-nc-title">YouTube Integration Not Configured</h3>
+        <p className="yt-nc-desc">
+          Add <code>VITE_YOUTUBE_CHANNEL_ID</code> to your Vercel Environment Variables (and <code>YOUTUBE_API_KEY</code>) to enable YouTube channel integration.
+        </p>
+        <Link to="/about" className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }}>
+          Setup Instructions →
+        </Link>
+      </div>
+    );
+  }
+  
+  function ConnectionError({ onRetry }) {
+    return (
+      <div className="hm-error-state">
+        <p>Could not load content right now.</p>
+        <button className="hm-error-retry" onClick={onRetry}>
+          <RefreshCw size={12} /> Try again
+        </button>
+      </div>
+    );
+  }
 
 /* ── Video Card ── */
 function VideoCard({ video }) {
@@ -100,20 +110,24 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError]     = useState('');
 
+  const loadHomeData = useCallback(async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [ch, vids] = await Promise.all([getChannelInfo(), getLatestVideos({ maxResults: 4 })]);
+      setChannel(ch);
+      setVideos(vids.videos || []);
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!isConfigured) { setLoading(false); return; }
-    (async () => {
-      try {
-        const [ch, vids] = await Promise.all([getChannelInfo(), getLatestVideos({ maxResults: 4 })]);
-        setChannel(ch);
-        setVideos(vids.videos || []);
-      } catch (e) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, []);
+    loadHomeData();
+  }, [loadHomeData]);
 
   return (
     <main className="hm-page fade-in" id="main-content">
@@ -220,9 +234,7 @@ export default function Home() {
           )
           : error
           ? (
-            <div className="yt-error">
-              <AlertCircle size={20} /><span>{error}</span>
-            </div>
+            <ConnectionError onRetry={loadHomeData} />
           )
           : channel && (
             <div className="hm-stats-wrap">
@@ -276,9 +288,7 @@ export default function Home() {
           )
           : error
           ? (
-            <div className="yt-error">
-              <AlertCircle size={20} /><span>{error}</span>
-            </div>
+            <ConnectionError onRetry={loadHomeData} />
           )
           : videos.length > 0
           ? <div className="hm-videos-list">{videos.map(v => <VideoCard key={v.id} video={v} />)}</div>
