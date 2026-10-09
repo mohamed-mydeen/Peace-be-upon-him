@@ -53,8 +53,50 @@ function ScrollToTop() {
   return null;
 }
 
+function useDisableBrowserZoomAndCopy() {
+  useEffect(() => {
+    const isEditableTarget = target =>
+      target instanceof Element &&
+      target.closest('input, textarea, select, [contenteditable="true"]');
+
+    const preventZoomShortcut = event => {
+      if (!(event.ctrlKey || event.metaKey)) return;
+      if (['+', '=', '-', '0'].includes(event.key)) event.preventDefault();
+    };
+    const preventWheelZoom = event => {
+      if (event.ctrlKey) event.preventDefault();
+    };
+    const preventGestureZoom = event => event.preventDefault();
+    const preventPageCopy = event => {
+      if (!isEditableTarget(event.target)) event.preventDefault();
+    };
+    const preventPageContextMenu = event => {
+      if (!isEditableTarget(event.target)) event.preventDefault();
+    };
+
+    document.addEventListener('keydown', preventZoomShortcut, true);
+    document.addEventListener('wheel', preventWheelZoom, { capture: true, passive: false });
+    document.addEventListener('gesturestart', preventGestureZoom, { passive: false });
+    document.addEventListener('gesturechange', preventGestureZoom, { passive: false });
+    document.addEventListener('copy', preventPageCopy, true);
+    document.addEventListener('cut', preventPageCopy, true);
+    document.addEventListener('contextmenu', preventPageContextMenu, true);
+
+    return () => {
+      document.removeEventListener('keydown', preventZoomShortcut, true);
+      document.removeEventListener('wheel', preventWheelZoom, true);
+      document.removeEventListener('gesturestart', preventGestureZoom);
+      document.removeEventListener('gesturechange', preventGestureZoom);
+      document.removeEventListener('copy', preventPageCopy, true);
+      document.removeEventListener('cut', preventPageCopy, true);
+      document.removeEventListener('contextmenu', preventPageContextMenu, true);
+    };
+  }, []);
+}
+
 export default function App() {
   const location = useLocation();
+  useDisableBrowserZoomAndCopy();
 
   return (
     <LanguageProvider>

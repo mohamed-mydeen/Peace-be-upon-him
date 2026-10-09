@@ -449,41 +449,160 @@
 
 @media (min-width: 768px) {
   .hm-hero-title { font-size: 1.3rem; }
-  .hm-page { max-width: 720px; margin: 0 auto; }
+
+  .hm-page > section:nth-of-type(3) .hm-section-header {
+    min-height: 44px;
+    align-items: flex-start;
+  }
+
+  .hm-page > section:nth-of-type(5) .hm-section-header {
+    align-items: flex-start;
+  }
 }
 
-@media (min-width: 1024px) {
-  .hm-page { 
-    max-width: 1200px; 
-    margin: 0 auto; 
+@media (min-width: 768px) and (max-width: 1023px) {
+  .hm-page {
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    grid-template-areas: 
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 1fr);
+    grid-template-areas:
       "hero prayer"
       "features stats"
       "videos videos";
+    align-content: start;
     gap: var(--space-6);
-    padding: var(--space-6) var(--space-4);
+    padding: calc(var(--navbar-height) + var(--space-6)) var(--space-4) var(--space-8);
   }
 
-  .hm-hero { 
-    grid-area: hero; 
-    margin: 0; 
+  .hm-hero {
+    grid-area: hero;
+    margin: 0;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
+    padding: var(--space-5);
   }
-  
+
   .hm-page > section:nth-of-type(2) { grid-area: prayer; padding: 0; }
   .hm-page > section:nth-of-type(3) { grid-area: features; padding: 0; }
   .hm-page > section:nth-of-type(4) { grid-area: stats; padding: 0; }
   .hm-page > section:nth-of-type(5) { grid-area: videos; padding: 0; }
 
-  .hm-features-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
-  .hm-videos-list { 
-    display: grid; 
-    grid-template-columns: repeat(2, 1fr); 
-    gap: 16px; 
+  .hm-features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 12px;
   }
+  .hm-feature-card { min-height: 76px; }
+  .hm-videos-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  .hm-video-row {
+    min-width: 0;
+    min-height: 92px;
+    align-items: center;
+  }
+  .hm-video-row > .hm-video-thumb.skeleton {
+    width: 112px;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    flex: 0 0 112px;
+  }
+  .hm-video-thumb-wrap {
+    width: 112px;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    align-self: center;
+  }
+  .hm-video-info { overflow: hidden; }
+  .hm-video-title { overflow-wrap: anywhere; }
+}
+
+@media (min-width: 1024px) {
+  .hm-page {
+    width: 100%;
+    max-width: 1280px;
+    min-width: 0;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
+    grid-template-areas:
+      "hero prayer"
+      "features stats"
+      "videos videos";
+    align-content: start;
+    gap: var(--space-8);
+    padding: calc(var(--navbar-height) + var(--space-6)) var(--space-4) var(--space-8);
+  }
+
+  .hm-hero {
+    grid-area: hero;
+    min-width: 0;
+    margin: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-8);
+  }
+
+  .hm-hero-title { font-size: 1.75rem; }
+  .hm-hero-desc { font-size: 0.9rem; max-width: 60ch; }
+  .hm-btn-yt,
+  .hm-btn-ig { font-size: 0.85rem; }
+
+  .hm-page > section:nth-of-type(2) { grid-area: prayer; padding: 0; }
+  .hm-page > section:nth-of-type(3) { grid-area: features; padding: 0; }
+  .hm-page > section:nth-of-type(4) { grid-area: stats; padding: 0; }
+  .hm-page > section:nth-of-type(5) { grid-area: videos; padding: 0; }
+
+  .hm-section { min-width: 0; }
+  .hm-section-title { font-size: 1rem; }
+  .hm-section-sub,
+  .hm-link-sm { font-size: 0.78rem; }
+  .hm-features-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+    gap: 16px;
+  }
+  .hm-feature-card { min-height: 84px; padding: 16px; }
+  .hm-feature-icon-wrap { width: 44px; height: 44px; }
+  .hm-feature-name { font-size: 0.88rem; }
+  .hm-feature-tamil { font-size: 0.72rem; }
+
+  .hm-videos-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: minmax(104px, auto);
+    gap: 16px;
+  }
+  .hm-video-row {
+    min-width: 0;
+    min-height: 104px;
+    padding: 12px 16px;
+    align-items: center;
+  }
+  .hm-video-row > .hm-video-thumb.skeleton {
+    width: 128px;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    flex: 0 0 128px;
+  }
+  .hm-video-thumb-wrap {
+    width: 128px;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    align-self: center;
+  }
+  .hm-video-info { overflow: hidden; }
+  .hm-video-title {
+    font-size: 0.82rem;
+    overflow-wrap: anywhere;
+  }
+  .hm-video-meta { font-size: 0.68rem; }
 }
