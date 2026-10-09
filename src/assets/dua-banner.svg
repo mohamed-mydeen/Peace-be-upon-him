@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" fill="none">
+  <defs>
+    <linearGradient id="sky" x2="0" y2="1">
+      <stop stop-color="#1E3340"/>
+      <stop offset="1" stop-color="#547260"/>
+    </linearGradient>
+    <linearGradient id="lantern" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F5DE9D"/>
+      <stop offset="1" stop-color="#C49445"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="matrix(0 210 -360 0 600 190)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F2D18B" stop-opacity=".38"/>
+      <stop offset="1" stop-color="#F2D18B" stop-opacity="0"/>
+    </radialGradient>
+    <pattern id="stars" width="94" height="76" patternUnits="userSpaceOnUse">
+      <circle cx="16" cy="18" r="1.4" fill="#FFF0CC" fill-opacity=".56"/>
+      <circle cx="72" cy="49" r="1" fill="#FFF0CC" fill-opacity=".4"/>
+      <path d="M44 7v7m-3.5-3.5h7" stroke="#FFF0CC" stroke-opacity=".36"/>
+    </pattern>
+  </defs>
+  <path fill="url(#sky)" d="M0 0h1200v360H0z"/>
+  <path fill="url(#glow)" d="M0 0h1200v360H0z"/>
+  <path fill="url(#stars)" d="M0 0h1200v270H0z"/>
+  <circle cx="946" cy="82" r="45" fill="#F6E5BC" fill-opacity=".9"/>
+  <circle cx="965" cy="67" r="43" fill="#263E43"/>
+  <path d="M0 291c133-35 226-19 331 8 117 30 206 20 321-7 125-29 225-26 348 2 88 20 144 16 200-5v71H0v-69Z" fill="#31574A"/>
+  <path d="M0 332c155-31 278-12 400 11 155 29 263 1 404-12 166-15 270 21 396-8v37H0v-28Z" fill="#19382F"/>
+  <path d="M250 0h18v85h-18zm682 0h18v63h-18z" fill="#D2B574" fill-opacity=".55"/>
+  <g>
+    <path d="M219 79h80l-10 18v75l-30 31-30-31V97l-10-18Z" fill="#263A39" stroke="url(#lantern)" stroke-width="5"/>
+    <path d="M233 103h52v60l-26 25-26-25v-60Z" fill="url(#lantern)" fill-opacity=".9"/>
+    <path d="M246 115h26v37l-13 14-13-14v-37Z" fill="#FFF0C8"/>
+    <path d="M207 78h104m-81-12h58" stroke="#E4CC8A" stroke-width="5" stroke-linecap="round"/>
+    <path d="M902 57h86l-11 19v79l-32 32-32-32V76l-11-19Z" fill="#263A39" stroke="url(#lantern)" stroke-width="5"/>
+    <path d="M918 83h54v64l-27 27-27-27V83Z" fill="url(#lantern)" fill-opacity=".9"/>
+    <path d="M932 95h27v39l-13.5 14L932 134V95Z" fill="#FFF0C8"/>
+    <path d="M890 56h110m-85-12h60" stroke="#E4CC8A" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <path d="M0 354h1200v6H0z" fill="#102C27"/>
+</svg>

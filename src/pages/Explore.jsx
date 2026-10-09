@@ -1,6 +1,8 @@
 import { useParams, Link } from 'react-router-dom';
-import { Compass, BookOpen, MessageSquare, Heart, ArrowLeft } from 'lucide-react';
+import { BookOpen, MessageSquare, Heart, ArrowLeft, GraduationCap, Sparkles } from 'lucide-react';
 import { HADITH_CATEGORIES } from '../services/hadith';
+import PageHero from '../components/PageHero';
+import exploreBanner from '../assets/explore-banner.svg';
 import './Explore.css';
 
 const SITUATIONS = [
@@ -24,15 +26,12 @@ export default function Explore() {
             <ArrowLeft size={16} /> Back to Explore
           </Link>
           
-          <div className="explore-header">
-            <div className="explore-icon-wrapper">
-              <Heart size={32} />
-            </div>
-            <h1 className="explore-title">Find Guidance</h1>
-            <p className="explore-subtitle tamil-text">
-              உணர்வு ரீதியான வழிகாட்டுதல்கள்
-            </p>
-          </div>
+          <PageHero
+            image={exploreBanner}
+            title="Find Guidance"
+            description="உணர்வு ரீதியான வழிகாட்டுதல்கள்"
+            className="explore-page-hero"
+          />
 
           <div className="situations-grid">
             {SITUATIONS.map(sit => (
@@ -55,32 +54,34 @@ export default function Explore() {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container">
-        <div className="explore-header">
-          <div className="explore-icon-wrapper">
-            <Compass size={32} />
-          </div>
-          <h1 className="explore-title">Explore Topics</h1>
-          <p className="explore-subtitle tamil-text">
-            உங்கள் வாழ்க்கைக்கு தேவையான இஸ்லாமிய வழிகாட்டுதல்கள்
-          </p>
-        </div>
+        <PageHero
+          image={exploreBanner}
+          title="Explore Topics"
+          description="உங்கள் வாழ்க்கைக்கு தேவையான இஸ்லாமிய வழிகாட்டுதல்கள்"
+          className="explore-page-hero"
+        />
 
         <div className="section" style={{ paddingTop: 0 }}>
           <div className="explore-main-grid">
             <Link to="/explore/situations" className="card card-hover explore-main-card primary">
-              <Heart size={32} style={{ marginBottom: '1rem' }} />
-              <h2>Find Guidance</h2>
-              <p>What are you feeling right now?</p>
+              <span className="explore-main-icon"><Heart size={21} aria-hidden="true" /></span>
+              <div className="explore-main-copy"><h2>Find Guidance</h2><p>What are you feeling right now?</p></div>
             </Link>
             <Link to="/quran" className="card card-hover explore-main-card">
-              <BookOpen size={32} style={{ marginBottom: '1rem', color: 'var(--color-primary)' }} />
-              <h2>Read Quran</h2>
-              <p>Explore by Surah</p>
+              <span className="explore-main-icon"><BookOpen size={21} aria-hidden="true" /></span>
+              <div className="explore-main-copy"><h2>Read Quran</h2><p>Explore by Surah</p></div>
             </Link>
             <Link to="/hadith" className="card card-hover explore-main-card">
-              <MessageSquare size={32} style={{ marginBottom: '1rem', color: 'var(--color-gold)' }} />
-              <h2>Read Hadith</h2>
-              <p>Authentic Collections</p>
+              <span className="explore-main-icon"><MessageSquare size={21} aria-hidden="true" /></span>
+              <div className="explore-main-copy"><h2>Read Hadith</h2><p>Authentic Collections</p></div>
+            </Link>
+            <Link to="/lessons" className="card card-hover explore-main-card">
+              <span className="explore-main-icon"><GraduationCap size={21} aria-hidden="true" /></span>
+              <div className="explore-main-copy"><h2>Islamic Lessons</h2><p>Aqidah, Fiqh, Seerah, and Akhlaq</p></div>
+            </Link>
+            <Link to="/names-of-allah" className="card card-hover explore-main-card">
+              <span className="explore-main-icon"><Sparkles size={21} aria-hidden="true" /></span>
+              <div className="explore-main-copy"><h2>Allah’s Beautiful Names</h2><p className="tamil-text">அல்லாஹ்வின் அழகிய திருநாமங்கள்</p></div>
             </Link>
           </div>
 

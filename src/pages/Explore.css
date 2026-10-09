@@ -1,48 +1,52 @@
-.explore-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.explore-icon-wrapper {
-  display: inline-flex;
-  padding: 16px;
-  background: var(--color-bg-secondary);
-  border-radius: 50%;
-  margin-bottom: 16px;
-  color: var(--color-primary);
-}
-
-.explore-title {
-  font-size: 2.25rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-bottom: 0.5rem;
-}
-
-.explore-subtitle {
-  font-size: 1.125rem;
-  color: var(--color-text-secondary);
-  font-family: var(--font-tamil);
-  max-width: 500px;
-  margin: 0 auto;
-  line-height: 1.6;
+.explore-page-hero {
+  margin-top: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .explore-main-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 4rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 270px), 1fr));
+  gap: var(--space-3);
+  margin-bottom: var(--space-8);
 }
 
 .explore-main-card {
-  padding: 2rem;
-  text-align: center;
+  min-height: 82px;
+  padding: var(--space-3) var(--space-4);
+  text-align: start;
   text-decoration: none;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
+  flex-direction: row;
+  justify-content: flex-start;
   align-items: center;
+  gap: var(--space-3);
+  border-radius: var(--radius-lg);
+}
+
+.explore-main-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  place-items: center;
+  color: var(--color-primary);
+  background: var(--color-primary-subtle);
+  border-radius: 13px;
+}
+
+.explore-main-card:nth-child(3) .explore-main-icon,
+.explore-main-card:nth-child(5) .explore-main-icon {
+  color: var(--color-gold);
+  background: var(--color-gold-subtle);
+}
+
+.explore-main-card.primary .explore-main-icon {
+  color: #fff;
+  background: rgb(255 255 255 / 14%);
+}
+
+.explore-main-copy {
+  min-width: 0;
 }
 
 .explore-main-card.primary {
@@ -52,9 +56,10 @@
 }
 
 .explore-main-card h2 {
-  font-size: 1.25rem;
+  margin: 0;
+  font-size: var(--text-base);
   font-weight: 600;
-  margin-bottom: 0.5rem;
+  line-height: var(--leading-snug);
 }
 
 .explore-main-card.primary h2 {
@@ -62,8 +67,10 @@
 }
 
 .explore-main-card p {
-  font-size: 0.875rem;
+  margin: 3px 0 0;
+  font-size: var(--text-xs);
   opacity: 0.9;
+  line-height: var(--leading-snug);
 }
 
 .explore-main-card:not(.primary) h2 {

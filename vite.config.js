@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react'
 import { defineConfig, loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+import { getNameAudio } from './server/namesAudio.js'
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
@@ -9,6 +10,31 @@ export default defineConfig(({ mode }) => {
   const localApiProxy = () => ({
     name: 'local-api-proxy',
     configureServer(server) {
+      server.middlewares.use('/api/names-audio', async (req, res) => {
+        if (req.method !== 'GET') {
+          res.statusCode = 405
+          res.setHeader('Allow', 'GET')
+          return res.end(JSON.stringify({ error: 'Method not allowed' }))
+        }
+
+        const url = new URL(req.originalUrl, 'http://localhost')
+        const rawNumber = url.searchParams.get('number')
+        const number = rawNumber === null ? NaN : Number(rawNumber)
+
+        try {
+          const { audio, contentType } = await getNameAudio(number)
+          res.statusCode = 200
+          res.setHeader('Content-Type', contentType)
+          res.setHeader('Cache-Control', 'public, max-age=86400')
+          res.end(Buffer.from(audio))
+        } catch (error) {
+          res.statusCode = error instanceof RangeError ? 400 : 502
+          res.setHeader('Content-Type', 'application/json')
+          if (res.statusCode === 502) console.error('Names audio proxy failed:', error)
+          res.end(JSON.stringify({ error: error.message }))
+        }
+      })
+
       server.middlewares.use('/api/youtube', async (req, res) => {
         try {
           const urlObj = new URL(req.originalUrl, 'http://localhost')

@@ -82,11 +82,7 @@ export async function getUploadsPlaylistId() {
   return data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads || null;
 }
 
-// Get latest videos
-export async function getLatestVideos({ maxResults = 12, pageToken = '' } = {}) {
-  const playlistId = await getUploadsPlaylistId();
-  if (!playlistId) throw new Error('Could not find uploads playlist');
-
+async function getUploadsPage(playlistId, { maxResults, pageToken = '' }) {
   const params = {
     part: 'snippet',
     playlistId,
@@ -101,22 +97,20 @@ export async function getLatestVideos({ maxResults = 12, pageToken = '' } = {}) 
     .filter(Boolean);
 
   // Get video stats in a single batch call
-  let statsMap = {};
+  const statsMap = {};
   if (videoIds.length) {
-    try {
-      const statsData = await fetchYT('videos', {
-        part: 'statistics,contentDetails',
-        id: videoIds.join(','),
-      });
-      (statsData.items || []).forEach(v => {
-        statsMap[v.id] = {
-          viewCount: v.statistics?.viewCount,
-          likeCount: v.statistics?.likeCount,
-          commentCount: v.statistics?.commentCount,
-          duration: v.contentDetails?.duration,
-        };
-      });
-    } catch { /* stats are optional */ }
+    const statsData = await fetchYT('videos', {
+      part: 'statistics,contentDetails',
+      id: videoIds.join(','),
+    });
+    (statsData.items || []).forEach(v => {
+      statsMap[v.id] = {
+        viewCount: v.statistics?.viewCount,
+        likeCount: v.statistics?.likeCount,
+        commentCount: v.statistics?.commentCount,
+        duration: v.contentDetails?.duration,
+      };
+    });
   }
 
   const videos = (data.items || []).map(item => {
@@ -140,6 +134,42 @@ export async function getLatestVideos({ maxResults = 12, pageToken = '' } = {}) 
     nextPageToken: data.nextPageToken,
     totalResults: data.pageInfo?.totalResults,
   };
+}
+
+// Get latest uploads
+export async function getLatestVideos({ maxResults = 12, pageToken = '' } = {}) {
+  const playlistId = await getUploadsPlaylistId();
+  if (!playlistId) throw new Error('Could not find uploads playlist');
+
+  const data = await getUploadsPage(playlistId, { maxResults, pageToken });
+  return data;
+}
+
+function durationInSeconds(duration = '') {
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  if (!match) return 0;
+  return (Number(match[1] || 0) * 3600) + (Number(match[2] || 0) * 60) + Number(match[3] || 0);
+}
+
+// Find full-length videos even when newer Shorts fill the first upload pages.
+export async function getLatestFullVideos({ maxResults = 12, pageToken = '' } = {}) {
+  const playlistId = await getUploadsPlaylistId();
+  if (!playlistId) throw new Error('Could not find uploads playlist');
+
+  const videos = [];
+  let nextPageToken = pageToken;
+  let pagesScanned = 0;
+  do {
+    const page = await getUploadsPage(playlistId, {
+      maxResults: 50,
+      pageToken: nextPageToken,
+    });
+    videos.push(...page.videos.filter(video => durationInSeconds(video.duration) > 180));
+    nextPageToken = page.nextPageToken || '';
+    pagesScanned += 1;
+  } while (videos.length < maxResults && nextPageToken && pagesScanned < 5);
+
+  return { videos, nextPageToken };
 }
 
 // Format numbers for display

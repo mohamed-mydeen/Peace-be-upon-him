@@ -3,6 +3,8 @@ import { useSearchParams } from 'react-router-dom';
 import { Search, Bookmark, Copy, Share2, Filter, Heart, Loader2 } from 'lucide-react';
 import { fetchDuasData, searchDuas } from '../services/dua';
 import { useBookmarks } from '../context/AppContext';
+import PageHero from '../components/PageHero';
+import duaBanner from '../assets/dua-banner.svg';
 import './Dua.css';
 
 export default function Dua() {
@@ -67,12 +69,12 @@ export default function Dua() {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container">
-        <div className="page-header">
-          <h1 className="page-title">Dua Library</h1>
-          <p className="page-description tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>
-            அன்றாட வாழ்க்கைக்கு தேவையான துஆக்கள்
-          </p>
-        </div>
+        <PageHero
+          image={duaBanner}
+          title="Dua Library"
+          description="அன்றாட வாழ்க்கைக்கு தேவையான துஆக்கள்"
+          className="dua-page-hero"
+        />
 
         {/* Categories Bar */}
         <div className="dua-categories-wrapper">
@@ -171,21 +173,21 @@ export default function Dua() {
                       </div>
                     </div>
 
-                    {dua.note && (
+                    {(dua.note || dua.notes) && (
                       <div className="dua-note">
-                        <strong>Note:</strong> {dua.note}
+                        <strong>Note:</strong> {dua.note || dua.notes}
                       </div>
                     )}
 
                     <div className="dua-footer">
-                      <span className="dua-ref">{dua.reference}</span>
+                      <span className="dua-ref">{dua.source || dua.reference}</span>
                       {dua.grade && (
                         <span className={`badge ${dua.grade.toLowerCase() === 'sahih' ? 'badge-sahih' : 'badge-unknown'}`}>
                           {dua.grade}
                         </span>
                       )}
-                      {dua.count > 1 && (
-                        <span className="badge badge-primary">Repeat: {dua.count}x</span>
+                      {(dua.repeat ?? dua.count) > 1 && (
+                        <span className="badge badge-primary">Repeat: {dua.repeat ?? dua.count}x</span>
                       )}
                     </div>
                   </article>

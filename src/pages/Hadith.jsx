@@ -3,6 +3,8 @@ import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, Filter, ArrowLeft, Bookmark, Share2, Copy, ChevronRight, BookOpen, AlertCircle } from 'lucide-react';
 import { COLLECTIONS, HADITH_CATEGORIES, GRADES, COLLECTION_BOOKS, getCollection, getHadiths, getHadithsByBook, getHadith } from '../services/hadith';
 import { useBookmarks } from '../context/AppContext';
+import PageHero from '../components/PageHero';
+import hadithBanner from '../assets/hadith-banner.svg';
 import './Hadith.css';
 
 //  Grade badge 
@@ -17,12 +19,12 @@ function CollectionList() {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container">
-        <div className="page-header">
-          <h1 className="page-title tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>ஹதீஸ் தொகுப்புகள்</h1>
-          <p className="page-description tamil-text" style={{ fontFamily: 'var(--font-tamil)' }}>
-            நம்பகமான ஹதீஸ் சேகரிப்புகள் — குத்துப் அஸ்-ஸித்தா
-          </p>
-        </div>
+        <PageHero
+          image={hadithBanner}
+          title="ஹதீஸ் தொகுப்புகள்"
+          description="நம்பகமான ஹதீஸ் சேகரிப்புகள் — குத்துப் அஸ்-ஸித்தா"
+          className="hadith-page-hero"
+        />
 
         {/* Collections grid */}
         <div className="collections-grid">

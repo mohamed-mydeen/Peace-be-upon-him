@@ -7,6 +7,14 @@ const BASE = 'https://api.quran.com/api/v4';
 
 const cache = new Map();
 
+export const QURAN_RECITERS = [
+  { id: 7, name: 'Mishari Rashid al-Afasy' },
+  { id: 3, name: 'Abdur-Rahman as-Sudais' },
+  { id: 2, name: 'AbdulBaset AbdulSamad' },
+  { id: 4, name: 'Abu Bakr al-Shatri' },
+  { id: 'bandar-baleela', name: 'Bandar Baleela' },
+];
+
 async function fetchWithCache(url) {
   if (cache.has(url)) return cache.get(url);
   const res = await fetch(url);
@@ -40,9 +48,18 @@ export async function getAyahs(surahId, { page = 1 } = {}) {
   };
 }
 
-// Get verse-by-verse recitation audio for a Surah (Mishari Rashid al-Afasy).
-export async function getSurahAyahAudio(surahId) {
-  const url = `${BASE}/recitations/7/by_chapter/${surahId}?segments=false`;
+// Get verse-by-verse recitation audio for a Surah.
+export async function getSurahAyahAudio(surahId, reciterId = 7) {
+  if (reciterId === 'bandar-baleela') {
+    const chapter = String(surahId).padStart(3, '0');
+    return [{
+      verseKey: `${surahId}:1`,
+      url: `https://cdn.mp3quran.net/audio/bandar-baleela/r1/${chapter}.mp3`,
+      isSurahAudio: true,
+    }];
+  }
+
+  const url = `${BASE}/recitations/${reciterId}/by_chapter/${surahId}?segments=false`;
   const firstPage = await fetchWithCache(url);
   const totalPages = firstPage.pagination?.total_pages || 1;
   const remainingPages = await Promise.all(

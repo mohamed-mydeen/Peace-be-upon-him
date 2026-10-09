@@ -1,8 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Search, ChevronLeft, ChevronRight, ArrowLeft, Bookmark, Copy, Play } from 'lucide-react';
-import { getSurahs, getSurah, getAyahs, getSurahAyahAudio } from '../services/quran';
-import { useBookmarks } from '../context/AppContext';
+import { Search, ChevronLeft, ChevronRight, ArrowLeft, Bookmark, Camera, Copy, Play } from 'lucide-react';
+import { getSurahs, getSurah, getAyahs, getSurahAyahAudio, QURAN_RECITERS } from '../services/quran';
+import { useBookmarks, useQuranAudioSettings } from '../context/AppContext';
+import ReciterPicker from '../components/quran/ReciterPicker';
+import PageHero from '../components/PageHero';
+import quranBanner from '../assets/quran-banner.svg';
 import './Quran.css';
 
 //  Skeleton 
@@ -64,16 +67,17 @@ function SurahList() {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container">
-        <div className="quran-header">
-          <div>
-            <h1 className="page-title">القرآن الكريم</h1>
-            <p className="page-description">The Holy Quran • 114 Surahs • Tamil & English Translations</p>
-          </div>
+        <PageHero
+          image={quranBanner}
+          title="القرآن الكريم"
+          description="The Holy Quran · 114 Surahs · Tamil & English Translations"
+          className="quran-page-hero"
+        >
           <div className="quran-revelation-types">
             <span className="badge badge-primary">Makki</span>
             <span className="badge badge-gold">Madani</span>
           </div>
-        </div>
+        </PageHero>
 
         {/* Search */}
         <div className="quran-search-wrap">
@@ -148,6 +152,9 @@ function SurahDetail({ surahId }) {
   const [playingIndex, setPlayingIndex] = useState(-1);
   const [audioLoading, setAudioLoading] = useState(true);
   const [audioError, setAudioError] = useState('');
+  const { reciterId: selectedReciterId, setReciterId: setSelectedReciterId } = useQuranAudioSettings();
+  const [screenshottingVerse, setScreenshottingVerse] = useState('');
+  const [screenshotError, setScreenshotError] = useState('');
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -170,7 +177,8 @@ function SurahDetail({ surahId }) {
     setIsPlaying(false);
     setAudioError('');
     setAudioLoading(true);
-    getSurahAyahAudio(surahId)
+    audioRef.current?.pause();
+    getSurahAyahAudio(surahId, selectedReciterId)
       .then(tracks => { if (!cancelled) setAudioTracks(tracks); })
       .catch(e => {
         if (!cancelled) setAudioError(e.message);
@@ -183,12 +191,49 @@ function SurahDetail({ surahId }) {
       cancelled = true;
       audioRef.current?.pause();
     };
-  }, [surahId]);
+  }, [surahId, selectedReciterId]);
 
   const copyAyah = (ayah) => {
     const text = ayah.translations?.find(t => t.resource_id === 819)?.text ||
                  ayah.translations?.[0]?.text || '';
     navigator.clipboard.writeText(`${ayah.verse_key} — ${text}`);
+  };
+
+  const saveAyahImage = async (ayah) => {
+    const card = document.getElementById(`ayah-${ayah.verse_number}`);
+    if (!card) {
+      setScreenshotError(`Unable to find Ayah ${ayah.verse_key} to save.`);
+      return;
+    }
+
+    setScreenshottingVerse(ayah.verse_key);
+    setScreenshotError('');
+    try {
+      await document.fonts.ready;
+      const { default: html2canvas } = await import('html2canvas');
+      const canvas = await html2canvas(card, {
+        backgroundColor: getComputedStyle(card).backgroundColor,
+        ignoreElements: element => element.classList.contains('ayah-actions'),
+        scale: 2,
+        useCORS: true,
+      });
+      const image = await new Promise((resolve, reject) => {
+        canvas.toBlob(blob => {
+          if (blob) resolve(blob);
+          else reject(new Error('The browser could not create the image.'));
+        }, 'image/png');
+      });
+      const imageUrl = URL.createObjectURL(image);
+      const download = document.createElement('a');
+      download.href = imageUrl;
+      download.download = `quran-${ayah.verse_key.replace(':', '-')}.png`;
+      download.click();
+      window.setTimeout(() => URL.revokeObjectURL(imageUrl), 1000);
+    } catch (error) {
+      setScreenshotError(`Unable to save Ayah image: ${error.message}`);
+    } finally {
+      setScreenshottingVerse('');
+    }
   };
 
   // Audio Controls
@@ -227,7 +272,9 @@ function SurahDetail({ surahId }) {
 
   useEffect(() => {
     if (playingIndex < 0) return;
-    const verseKey = audioTracks[playingIndex]?.verseKey;
+    const track = audioTracks[playingIndex];
+    if (track?.isSurahAudio) return;
+    const verseKey = track?.verseKey;
     const ayahNumber = Number(verseKey?.split(':')[1]);
     const activePage = Math.floor((ayahNumber - 1) / 10) + 1;
     const activeAyah = ayahs.find(ayah => ayah.verse_key === verseKey);
@@ -273,20 +320,32 @@ function SurahDetail({ surahId }) {
               </p>
             )}
 
-            {/* Ayah-by-Ayah Audio Player */}
-            <div className="surah-audio-player" style={{ marginTop: '1.5rem', background: 'var(--color-bg-card)', padding: '1rem', borderRadius: 'var(--radius-lg)', border: '1px solid var(--color-border)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div>
-                <p style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--color-text-primary)' }}>Recitation: Mishari Rashid al-Afasy</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--color-text-secondary)' }}>
-                  {audioLoading ? 'Loading recitation...' : playingIndex >= 0 ? `Playing Ayah ${audioTracks[playingIndex]?.verseKey}` : 'Ayah-by-Ayah Recitation'}
+            {/* Quran recitation audio player */}
+            <div className="surah-audio-player">
+              <div className="surah-audio-info">
+                <span className="quran-reciter-label">Choose reciter</span>
+                <ReciterPicker
+                  reciters={QURAN_RECITERS}
+                  value={selectedReciterId}
+                  onChange={setSelectedReciterId}
+                  label="Choose Quran reciter"
+                />
+                <p className="surah-audio-status">
+                  {audioLoading
+                    ? 'Loading recitation...'
+                    : playingIndex >= 0
+                      ? audioTracks[playingIndex]?.isSurahAudio
+                        ? `Playing Surah ${surahId}`
+                        : `Playing Ayah ${audioTracks[playingIndex]?.verseKey}`
+                      : audioTracks[0]?.isSurahAudio ? 'Full-Surah Recitation' : 'Ayah-by-Ayah Recitation'}
                 </p>
               </div>
-              <button 
-                className="btn btn-primary" 
+              <button
+                className="btn btn-primary"
                 onClick={togglePlay}
                 disabled={audioTracks.length === 0 || audioLoading}
                 aria-label={isPlaying ? 'Pause recitation' : 'Play recitation'}
-                style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}
               >
                 {isPlaying ? (
                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
@@ -326,7 +385,8 @@ function SurahDetail({ surahId }) {
               const tamilTrans = ayah.translations?.find(t => t.resource_id === 133);
               const englishTrans = ayah.translations?.find(t => t.resource_id === 20);
               const bk = isBookmarked('ayah', ayah.verse_key);
-              const isAyahPlaying = audioTracks[playingIndex]?.verseKey === ayah.verse_key;
+              const isAyahPlaying = !audioTracks[playingIndex]?.isSurahAudio &&
+                audioTracks[playingIndex]?.verseKey === ayah.verse_key;
 
               return (
                 <article 
@@ -360,6 +420,15 @@ function SurahDetail({ surahId }) {
                         title="Copy"
                       >
                         <Copy size={15} />
+                      </button>
+                      <button
+                        className="btn-icon"
+                        onClick={() => saveAyahImage(ayah)}
+                        disabled={screenshottingVerse === ayah.verse_key}
+                        aria-label={`Save Ayah ${ayah.verse_key} as image`}
+                        title="Save as image"
+                      >
+                        <Camera size={15} />
                       </button>
                     </div>
                   </div>
@@ -395,6 +464,7 @@ function SurahDetail({ surahId }) {
             })
           }
         </div>
+        {screenshotError && <p className="quran-error" role="alert">{screenshotError}</p>}
 
         {/* Pagination */}
         {pagination.total_pages > 1 && (
