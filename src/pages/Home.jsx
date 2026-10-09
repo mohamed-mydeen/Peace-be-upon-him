@@ -9,7 +9,6 @@ import {
   getChannelInfo, getLatestVideos, formatCount, formatRelativeDate, formatDuration, isConfigured
 } from '../services/youtube';
 import PrayerTimes from '../components/prayer/PrayerTimes';
-import heroBg from '../assets/hero.png';
 import './Home.css';
 
 /* ── Skeleton helpers ── */
@@ -69,7 +68,9 @@ function VideoCard({ video }) {
         )}
       </div>
       <div className="hm-video-info">
-        <h4 className="hm-video-title">{video.title}</h4>
+        <h4 className="hm-video-title">
+          {video.title ? video.title.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim() : ''}
+        </h4>
         <div className="hm-video-meta">
           {video.viewCount && <span>{formatCount(video.viewCount)} views</span>}
           {video.viewCount && video.publishedAt && <span>•</span>}
@@ -119,8 +120,8 @@ export default function Home() {
 
       {/* ── HERO BANNER ── */}
       <section className="hm-hero" aria-label="Channel introduction">
-        {/* Decorative background img */}
-        <img src={heroBg} alt="" className="hm-hero-bg-img" aria-hidden="true" />
+        {/* Decorative background icon */}
+        <span className="hm-hero-bg-icon" aria-hidden="true">📖</span>
 
         <div className="hm-hero-inner">
           <div className="hm-hero-pill arabic-text notranslate" dir="rtl" translate="no">

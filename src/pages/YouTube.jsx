@@ -138,7 +138,9 @@ export default function YouTubePage() {
                       <div className="video-play-overlay"><Play size={28} fill="currentColor" /></div>
                     </div>
                     <div className="video-info">
-                      <h3 className="video-title">{video.title}</h3>
+                      <h3 className="video-title">
+                        {video.title ? video.title.replace(/#\S+/g, '').replace(/\s+/g, ' ').trim() : ''}
+                      </h3>
                       <div className="video-meta">
                         {video.viewCount && <span>{formatCount(video.viewCount)} views</span>}
                         {video.viewCount && video.publishedAt && <span className="video-dot">·</span>}
