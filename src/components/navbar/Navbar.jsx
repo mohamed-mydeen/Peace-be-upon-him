@@ -3,11 +3,7 @@ import { NavLink, Link, useLocation } from 'react-router-dom';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
-<<<<<<< Updated upstream
-  Settings, MapPin
-=======
   Bookmark, ChevronRight, Settings, MapPin, Navigation2
->>>>>>> Stashed changes
 } from 'lucide-react';
 import { useTheme, useSearch, useLang } from '../../context/AppContext';
 import '../../styles/navbar.css';
