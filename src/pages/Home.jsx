@@ -210,8 +210,10 @@ export default function Home() {
           ? <NotConfigured />
           : loading
           ? (
-            <div className="hm-stats-grid">
-              <StatSkeleton /><StatSkeleton /><StatSkeleton />
+            <div className="hm-stats-wrap">
+              <div className="hm-stats-grid">
+                <StatSkeleton /><StatSkeleton /><StatSkeleton />
+              </div>
             </div>
           )
           : error
@@ -221,28 +223,30 @@ export default function Home() {
             </div>
           )
           : channel && (
-            <div className="hm-stats-grid">
-              {!channel.hiddenSubscribers && channel.subscriberCount && (
-                <div className="hm-stat-card">
-                  <Users size={18} className="hm-stat-icon" aria-hidden="true" />
-                  <p className="hm-stat-number">{formatCount(channel.subscriberCount)}</p>
-                  <p className="hm-stat-label">Subscribers</p>
-                </div>
-              )}
-              {channel.viewCount && (
-                <div className="hm-stat-card">
-                  <Eye size={18} className="hm-stat-icon" aria-hidden="true" />
-                  <p className="hm-stat-number">{formatCount(channel.viewCount)}</p>
-                  <p className="hm-stat-label">Total Views</p>
-                </div>
-              )}
-              {channel.videoCount && (
-                <div className="hm-stat-card">
-                  <Video size={18} className="hm-stat-icon" aria-hidden="true" />
-                  <p className="hm-stat-number">{formatCount(channel.videoCount)}</p>
-                  <p className="hm-stat-label">Videos</p>
-                </div>
-              )}
+            <div className="hm-stats-wrap">
+              <div className="hm-stats-grid">
+                {!channel.hiddenSubscribers && channel.subscriberCount && (
+                  <div className="hm-stat-card">
+                    <Users size={18} className="hm-stat-icon" aria-hidden="true" />
+                    <p className="hm-stat-number">{formatCount(channel.subscriberCount)}</p>
+                    <p className="hm-stat-label">Subscribers</p>
+                  </div>
+                )}
+                {channel.viewCount && (
+                  <div className="hm-stat-card">
+                    <Eye size={18} className="hm-stat-icon" aria-hidden="true" />
+                    <p className="hm-stat-number">{formatCount(channel.viewCount)}</p>
+                    <p className="hm-stat-label">Total Views</p>
+                  </div>
+                )}
+                {channel.videoCount && (
+                  <div className="hm-stat-card">
+                    <Video size={18} className="hm-stat-icon" aria-hidden="true" />
+                    <p className="hm-stat-number">{formatCount(channel.videoCount)}</p>
+                    <p className="hm-stat-label">Videos</p>
+                  </div>
+                )}
+              </div>
             </div>
           )
         }
