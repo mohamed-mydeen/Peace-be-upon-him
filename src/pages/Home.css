@@ -35,13 +35,12 @@
   border-color: rgba(26, 107, 58, 0.4);
 }
 
-.hm-hero-bg-img {
+.hm-hero-bg-icon {
   position: absolute;
-  right: -5%;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 120%;
-  opacity: 0.15;
+  right: -12px;
+  top: -18px;
+  font-size: 96px;
+  opacity: 0.055;
   pointer-events: none;
   user-select: none;
 }
@@ -447,7 +446,44 @@
 @media (min-width: 480px) {
   .hm-features-grid { grid-template-columns: repeat(3, 1fr); }
 }
+
 @media (min-width: 768px) {
-  .hm-page { max-width: 520px; margin: 0 auto; }
   .hm-hero-title { font-size: 1.3rem; }
+  .hm-page { max-width: 720px; margin: 0 auto; }
+}
+
+@media (min-width: 1024px) {
+  .hm-page { 
+    max-width: 1200px; 
+    margin: 0 auto; 
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-areas: 
+      "hero prayer"
+      "features stats"
+      "videos videos";
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-4);
+  }
+
+  .hm-hero { 
+    grid-area: hero; 
+    margin: 0; 
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .hm-page > section:nth-of-type(2) { grid-area: prayer; padding: 0; }
+  .hm-page > section:nth-of-type(3) { grid-area: features; padding: 0; }
+  .hm-page > section:nth-of-type(4) { grid-area: stats; padding: 0; }
+  .hm-page > section:nth-of-type(5) { grid-area: videos; padding: 0; }
+
+  .hm-features-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .hm-videos-list { 
+    display: grid; 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 16px; 
+  }
 }
