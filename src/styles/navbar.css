@@ -274,19 +274,7 @@
 }
 
 .bottom-nav-item-label {
-  font-size: 11px;
-  font-weight: 600;
-  font-family: var(--font-primary);
-  line-height: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  transition: font-weight var(--transition-fast);
-}
-
-/* Inactive — hide label on very small screens to keep bar compact */
-@media (max-width: 360px) {
-  .bottom-nav-item:not(.active) .bottom-nav-item-label { display: none; }
+  display: none;
 }
 
 
