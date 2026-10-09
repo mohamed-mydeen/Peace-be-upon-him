@@ -6,6 +6,7 @@ import { useBookmarks, useQuranAudioSettings } from '../context/AppContext';
 import ReciterPicker from '../components/quran/ReciterPicker';
 import PageHero from '../components/PageHero';
 import quranBanner from '../assets/quran-banner.svg';
+import tamilSurahs from '../data/tamil_surahs.json';
 import './Quran.css';
 
 //  Skeleton 
@@ -112,12 +113,9 @@ function SurahList() {
                 <div className="surah-info">
                   <div className="surah-name-row">
                     <span className="surah-name-en">{surah.name_simple}</span>
-                    <span className="surah-meaning">{surah.translated_name?.name}</span>
+                    <span className="surah-meaning">{tamilSurahs[surah.id] || surah.translated_name?.name}</span>
                   </div>
                   <div className="surah-meta-row">
-                    <span className={`badge badge-sm ${surah.revelation_place === 'makkah' ? 'badge-primary' : 'badge-gold'}`}>
-                      {surah.revelation_place === 'makkah' ? 'Makki' : 'Madani'}
-                    </span>
                     <span className="surah-ayah-count">{surah.verses_count} Ayahs</span>
                   </div>
                 </div>
@@ -305,13 +303,10 @@ function SurahDetail({ surahId }) {
           <div className="surah-detail-header">
             <div className="surah-detail-meta">
               <span className="badge badge-primary">Surah {surah.id}</span>
-              <span className={`badge ${surah.revelation_place === 'makkah' ? 'badge-primary' : 'badge-gold'}`}>
-                {surah.revelation_place === 'makkah' ? 'Makki' : 'Madani'}
-              </span>
               <span className="badge badge-unknown">{surah.verses_count} Ayahs</span>
             </div>
             <h1 className="surah-detail-name arabic-text notranslate" dir="rtl" translate="no">{surah.name_arabic}</h1>
-            <p className="surah-detail-name-en">{surah.name_simple} — {surah.translated_name?.name}</p>
+            <p className="surah-detail-name-en">{surah.name_simple} — {tamilSurahs[surah.id] || surah.translated_name?.name}</p>
 
             {/* Bismillah (not for Al-Fatiha or At-Tawbah) */}
             {surah.id !== 1 && surah.id !== 9 && (
