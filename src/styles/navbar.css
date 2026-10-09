@@ -230,12 +230,14 @@
   text-decoration: none;
   color: #88b6a1;
   border-radius: 999px;
-  transition: color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+  transition: color var(--transition-fast), transform var(--transition-fast);
   cursor: pointer;
   background: none;
   border: none;
   -webkit-tap-highlight-color: transparent;
   white-space: nowrap;
+  position: relative;
+  z-index: 1;
 }
 
 .bottom-nav-item:hover {
@@ -249,12 +251,20 @@
   outline-offset: 2px;
 }
 
-/* Active item — filled sage-green capsule (Figma) */
+/* Active item text color */
 .bottom-nav-item.active {
-  background: #82aa94;
   color: #0e3a2d;
   flex: 1;
   padding: 0 6px;
+}
+
+/* Framer motion sliding pill background */
+.bottom-nav-pill {
+  position: absolute;
+  inset: 0;
+  background: #82aa94;
+  border-radius: 999px;
+  z-index: -1;
 }
 
 /* Icon container — no stacking in new design */
@@ -266,9 +276,9 @@
   width: auto;
   height: auto;
   margin-bottom: 0;
+  z-index: 2;
 }
 
-/* Remove old dot indicator — active pill replaces it */
 .bottom-nav-item.active .bottom-nav-item-icon::after {
   display: none;
 }
@@ -278,6 +288,7 @@
   font-size: 10px;
   font-weight: 500;
   line-height: 1;
+  z-index: 2;
 }
 
 

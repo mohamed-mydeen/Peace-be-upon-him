@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { NavLink, Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
@@ -149,10 +150,22 @@ export default function Navbar() {
               className={({ isActive }) => `bottom-nav-item${isActive ? ' active' : ''}`}
               aria-label={t(key)}
             >
-              <div className="bottom-nav-item-icon">
-                <Icon size={20} aria-hidden="true" />
-              </div>
-              <span className="bottom-nav-item-label">{t(key)}</span>
+              {({ isActive }) => (
+                <>
+                  {isActive && (
+                    <motion.div
+                      layoutId="bottomNavPill"
+                      className="bottom-nav-pill"
+                      initial={false}
+                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                    />
+                  )}
+                  <div className="bottom-nav-item-icon">
+                    <Icon size={20} aria-hidden="true" />
+                  </div>
+                  <span className="bottom-nav-item-label">{t(key)}</span>
+                </>
+              )}
             </NavLink>
           ))}
           <button
@@ -162,6 +175,14 @@ export default function Navbar() {
             aria-expanded={menuOpen}
             aria-haspopup="dialog"
           >
+            {menuOpen && (
+              <motion.div
+                layoutId="bottomNavPill"
+                className="bottom-nav-pill"
+                initial={false}
+                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+              />
+            )}
             <div className="bottom-nav-item-icon">
               <Menu size={20} aria-hidden="true" />
             </div>
