@@ -221,10 +221,10 @@
   flex: 1;
   min-width: 0;
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 3px;
   height: 100%;
   padding: 0 6px;
   text-decoration: none;
@@ -253,8 +253,8 @@
 .bottom-nav-item.active {
   background: #82aa94;
   color: #0e3a2d;
-  flex: 0 0 auto;
-  padding: 0 14px;
+  flex: 1;
+  padding: 0 6px;
 }
 
 /* Icon container — no stacking in new design */
@@ -274,7 +274,10 @@
 }
 
 .bottom-nav-item-label {
-  display: none;
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 1;
 }
 
 
