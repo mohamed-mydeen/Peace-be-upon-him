@@ -7,12 +7,13 @@
 .hm-page {
   min-height: 100vh;
   padding-top: var(--navbar-height);
-  padding-bottom: calc(var(--bottom-nav-height) + var(--space-6));
+  padding-bottom: var(--space-8);
   background: #0e3a2d;
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
 }
+
 
 [data-theme="light"] .hm-page {
   background: #f4f9f6;
@@ -483,6 +484,12 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 767px) {
+  .hm-page {
+    padding-bottom: calc(var(--bottom-nav-height) + var(--space-6) + env(safe-area-inset-bottom));
+  }
+}
+
 @media (min-width: 480px) {
   .hm-features-grid { grid-template-columns: repeat(3, 1fr); }
 }

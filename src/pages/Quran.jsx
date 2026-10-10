@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Search, ChevronLeft, ChevronRight, ArrowLeft, Bookmark, Camera, Copy, Play } from 'lucide-react';
+import { Search, ChevronLeft, ChevronRight, ArrowLeft, Bookmark, Camera, Copy, Play, DownloadCloud, CheckCircle, Trash2, XCircle, RefreshCw } from 'lucide-react';
 import { getSurahs, getSurah, getAyahs, getSurahAyahAudio, QURAN_RECITERS } from '../services/quran';
+import { downloadSurah, deleteSurahDownload, getSurahDownloadStatus, subscribeToDownloadProgress, getCachedAudioUrl } from '../services/quranDownload';
 import { useBookmarks, useQuranAudioSettings } from '../context/AppContext';
 import ReciterPicker from '../components/quran/ReciterPicker';
 import PageHero from '../components/PageHero';
 import quranBanner from '../assets/quran-banner.svg';
 import tamilSurahs from '../data/tamil_surahs.json';
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
 import './Quran.css';
 
 //  Skeleton 
@@ -43,7 +46,7 @@ function SurahList() {
   useEffect(() => {
     getSurahs()
       .then(data => { setSurahs(data); setFiltered(data); })
-      .catch(e => setError(e.message))
+      .catch(e => setError(parseError(e, 'Quran Surahs')))
       .finally(() => setLoading(false));
   }, []);
 
@@ -59,10 +62,16 @@ function SurahList() {
   }, [query, surahs]);
 
   if (error) return (
-    <div className="quran-error">
-      <p>Unable to load Quran data. Please check your internet connection.</p>
-      <p className="error-detail">{error}</p>
-    </div>
+    <main className="page-wrapper fade-in" id="main-content">
+      <div className="container" style={{ paddingTop: '2rem' }}>
+        <FriendlyError 
+          title={error.title} 
+          message={error.message} 
+          icon={error.icon} 
+          onRetry={() => window.location.reload()} 
+        />
+      </div>
+    </main>
   );
 
   return (
@@ -153,7 +162,28 @@ function SurahDetail({ surahId }) {
   const { reciterId: selectedReciterId, setReciterId: setSelectedReciterId } = useQuranAudioSettings();
   const [screenshottingVerse, setScreenshottingVerse] = useState('');
   const [screenshotError, setScreenshotError] = useState('');
+  const [downloadState, setDownloadState] = useState({ status: 'none', progress: 0 });
   const audioRef = useRef(null);
+
+  useEffect(() => {
+    setDownloadState(getSurahDownloadStatus(surahId, selectedReciterId));
+    const unsubscribe = subscribeToDownloadProgress((sId, rId, prog, stat, err) => {
+      if (String(sId) === String(surahId) && String(rId) === String(selectedReciterId)) {
+        setDownloadState({ status: stat, progress: prog, error: err });
+      }
+    });
+    return unsubscribe;
+  }, [surahId, selectedReciterId]);
+
+  const handleDownload = () => {
+    downloadSurah(surahId, selectedReciterId).catch(console.error);
+  };
+  
+  const handleDeleteDownload = () => {
+    if (window.confirm('Remove downloaded audio and text for this Surah?')) {
+      deleteSurahDownload(surahId, selectedReciterId);
+    }
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -164,7 +194,7 @@ function SurahDetail({ surahId }) {
         setAyahs(verses);
         setPagination(pg);
       })
-      .catch(e => setError(e.message))
+      .catch(e => setError(parseError(e, 'Quran Verses')))
       .finally(() => setLoading(false));
   }, [surahId, page]);
 
@@ -234,8 +264,7 @@ function SurahDetail({ surahId }) {
     }
   };
 
-  // Audio Controls
-  const playAudioAt = (index) => {
+  const playAudioAt = async (index) => {
     const track = audioTracks[index];
     const audio = audioRef.current;
     if (!track || !audio) return;
@@ -244,11 +273,17 @@ function SurahDetail({ surahId }) {
     if (trackPage !== page) setPage(trackPage);
     setPlayingIndex(index);
     setAudioError('');
-    audio.src = track.url;
-    audio.play().catch(e => {
+    try {
+      if (audio.src && audio.src.startsWith('blob:')) {
+        URL.revokeObjectURL(audio.src);
+      }
+      const url = await getCachedAudioUrl(track.url);
+      audio.src = url;
+      await audio.play();
+    } catch(e) {
       setAudioError(`Unable to play Ayah ${track.verseKey}: ${e.message}`);
       setIsPlaying(false);
-    });
+    }
   };
 
   const togglePlay = () => {
@@ -285,9 +320,16 @@ function SurahDetail({ surahId }) {
   }, [playingIndex, audioTracks, ayahs, page]);
 
   if (error) return (
-    <main className="page-wrapper"><div className="container">
-      <p className="quran-error">{error}</p>
-    </div></main>
+    <main className="page-wrapper fade-in" id="main-content">
+      <div className="container" style={{ paddingTop: '2rem' }}>
+        <FriendlyError 
+          title={error.title} 
+          message={error.message} 
+          icon={error.icon} 
+          onRetry={() => window.location.reload()} 
+        />
+      </div>
+    </main>
   );
 
   return (
@@ -334,6 +376,26 @@ function SurahDetail({ surahId }) {
                         : `Playing Ayah ${audioTracks[playingIndex]?.verseKey}`
                       : audioTracks[0]?.isSurahAudio ? 'Full-Surah Recitation' : 'Ayah-by-Ayah Recitation'}
                 </p>
+                <div className="surah-audio-download" style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', color: 'var(--color-text-muted)' }}>
+                  {downloadState.status === 'none' || downloadState.status === 'error' ? (
+                    <button className="btn btn-secondary btn-sm" onClick={handleDownload} title="Download Surah text and audio for offline reading" style={{ padding: '4px 8px', fontSize: '0.7rem' }}>
+                      <DownloadCloud size={14} style={{ marginRight: 4 }} /> Download Offline
+                    </button>
+                  ) : downloadState.status === 'downloading' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span className="spinning" style={{ display: 'inline-block' }}><RefreshCw size={14} /></span> 
+                      Downloading {downloadState.progress}%
+                    </div>
+                  ) : downloadState.status === 'downloaded' ? (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <CheckCircle size={14} color="var(--color-primary)" /> Available Offline
+                      <button className="btn-icon" onClick={handleDeleteDownload} title="Delete download" style={{ marginLeft: 4, padding: 4 }}>
+                        <Trash2 size={12} color="#e88080" />
+                      </button>
+                    </div>
+                  ) : null}
+                  {downloadState.status === 'error' && <span style={{ color: '#e88080' }}>Failed. Try again.</span>}
+                </div>
               </div>
               <button
                 className="btn btn-primary"

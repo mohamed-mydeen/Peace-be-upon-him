@@ -1,6 +1,8 @@
 import { AlertCircle, LoaderCircle } from 'lucide-react';
 import MasjidCard from './MasjidCard';
 import { getGoogleMapsSearchUrl } from '../../services/masjidService';
+import FriendlyError from '../ui/FriendlyError';
+import { parseError } from '../../utils/errorHandling';
 
 export default function MasjidList({ masjids, origin, radiusKm, loading, error, searched, onRetry }) {
   if (loading) {
@@ -13,21 +15,17 @@ export default function MasjidList({ masjids, origin, radiusKm, loading, error, 
   }
 
   if (error) {
+    const parsed = parseError(error, 'nearby masjids');
     return (
-      <div className="nearby-state">
-        <AlertCircle size={28} className="nearby-error-icon" />
-        <p role="alert">{error}</p>
-        <button type="button" className="btn btn-secondary btn-sm" onClick={onRetry}>Retry</button>
-        {origin && (
-          <a
-            className="btn btn-secondary btn-sm"
-            href={getGoogleMapsSearchUrl(origin)}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Search in Google Maps
-          </a>
-        )}
+      <div style={{ marginTop: '1rem' }}>
+        <FriendlyError 
+          title={parsed.title} 
+          message={parsed.message} 
+          icon={parsed.icon} 
+          onRetry={onRetry} 
+          secondaryAction={origin ? () => window.open(getGoogleMapsSearchUrl(origin), '_blank') : null}
+          secondaryActionLabel="Search Google Maps"
+        />
       </div>
     );
   }

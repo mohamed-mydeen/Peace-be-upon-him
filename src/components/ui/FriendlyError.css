@@ -1,0 +1,78 @@
+.friendly-error-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 16px;
+  background: var(--card-bg, #124234);
+  border: 1px solid var(--border-color, rgba(159, 215, 187, 0.2));
+  border-radius: 12px;
+  width: 100%;
+}
+
+.friendly-error-icon-wrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(245, 166, 35, 0.1);
+  color: #f5a623;
+}
+
+.friendly-error-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.friendly-error-title {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-color, #e9ecef);
+}
+
+.friendly-error-message {
+  margin: 0 0 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--text-muted, #a8c0b4);
+}
+
+.friendly-error-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.friendly-error-retry {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--text-color, #fff);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.friendly-error-retry:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.friendly-error-retry:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
+}

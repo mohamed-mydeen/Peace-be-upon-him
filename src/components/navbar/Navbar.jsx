@@ -4,48 +4,46 @@ import { motion } from 'framer-motion';
 import {
   Home, BookOpen, MessageSquare, Heart, Hash, Compass,
   Library, MonitorPlay, Info, Search, Sun, Moon, Menu, X,
-  Bookmark, ChevronRight, Settings, MapPin, Navigation2
+  Settings, MapPin, Navigation2
 } from 'lucide-react';
 import { useTheme, useSearch, useLang } from '../../context/AppContext';
 import '../../styles/navbar.css';
 
-const NAV_LINKS = [
-  { to: '/', key: 'home', icon: Home, exact: true },
-  { to: '/quran', key: 'quran', icon: BookOpen },
-  { to: '/hadith', key: 'hadith', icon: MessageSquare },
-  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
-  { to: '/dua', key: 'dua', icon: Heart },
-  { to: '/dhikr', key: 'dhikr', icon: Hash },
+/* ── Primary links shown in the desktop top navbar (6 max) ── */
+const DESKTOP_NAV = [
+  { to: '/',        key: 'home',    icon: Home,         exact: true },
+  { to: '/quran',   key: 'quran',   icon: BookOpen },
+  { to: '/hadith',  key: 'hadith',  icon: MessageSquare },
+  { to: '/dua',     key: 'dua',     icon: Heart },
+  { to: '/dhikr',   key: 'dhikr',   icon: Hash },
   { to: '/explore', key: 'explore', icon: Compass },
-  { to: '/qibla', key: 'qibla', icon: Navigation2 },
-  { to: '/library', key: 'library', icon: Library },
-  { to: '/youtube', key: 'youtube', icon: MonitorPlay },
 ];
 
+/* ── Quick links in the mobile bottom bar ── */
 const BOTTOM_NAV = [
-  { to: '/', key: 'home', icon: Home, exact: true },
-  { to: '/quran', key: 'quran', icon: BookOpen },
-  { to: '/qibla', key: 'qibla', icon: Navigation2 },
-  { to: '/explore', key: 'explore', icon: Compass },
+  { to: '/',       key: 'home',   icon: Home,        exact: true },
+  { to: '/quran',  key: 'quran',  icon: BookOpen },
+  { to: '/qibla',  key: 'qibla',  icon: Navigation2 },
+  { to: '/explore',key: 'explore',icon: Compass },
 ];
 
+/* ── All destinations available in the slide-up drawer ── */
 const MENU_LINKS = [
-  { to: '/qibla', key: 'qibla', icon: Navigation2 },
-  { to: '/dua', key: 'dua', icon: Heart },
-  { to: '/dhikr', key: 'dhikr', icon: Hash },
-  { to: '/library', key: 'library', icon: Library },
-  { to: '/nearby-masjids', key: 'nearbyMasjids', icon: MapPin },
-  { to: '/youtube', key: 'youtube', icon: MonitorPlay },
-  { to: '/about', key: 'about', icon: Info },
-  { to: '/settings', key: 'settings', icon: Settings },
+  { to: '/hadith',        key: 'hadith',         icon: MessageSquare },
+  { to: '/dua',           key: 'dua',            icon: Heart },
+  { to: '/dhikr',         key: 'dhikr',          icon: Hash },
+  { to: '/nearby-masjids',key: 'nearbyMasjids',  icon: MapPin },
+  { to: '/library',       key: 'library',        icon: Library },
+  { to: '/about',         key: 'about',          icon: Info },
+  { to: '/settings',      key: 'settings',       icon: Settings },
 ];
 
-export default function Navbar() {
+export default function Navbar({ onAuthClick }) {
   const { theme, toggle } = useTheme();
   const { open: openSearch } = useSearch();
   const { t } = useLang();
-  const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled]   = useState(false);
+  const [menuOpen, setMenuOpen]   = useState(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -58,29 +56,37 @@ export default function Navbar() {
 
   useEffect(() => {
     if (!menuOpen) return undefined;
-    const closeOnEscape = event => {
-      if (event.key === 'Escape') setMenuOpen(false);
-    };
+    const closeOnEscape = e => { if (e.key === 'Escape') setMenuOpen(false); };
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
   }, [menuOpen]);
 
   return (
     <>
-      <nav className={`navbar${scrolled ? ' scrolled' : ''}`} role="navigation" aria-label="Main navigation">
+      {/* ── Top navbar ── */}
+      <nav
+        className={`navbar${scrolled ? ' scrolled' : ''}`}
+        role="navigation"
+        aria-label="Main navigation"
+      >
         <div className="container navbar-inner">
-          {/* Logo */}
-          <Link to="/" className="navbar-logo" aria-label="Peace be upon him - Home">
-            <img src="/channels4_profile.jpg" alt="Peace be upon him Logo" className="navbar-logo-img" />
+
+          {/* Left: Logo + brand */}
+          <Link to="/" className="navbar-logo" aria-label="Peace be upon him — Home">
+            <img
+              src="/channels4_profile.jpg"
+              alt="Peace be upon him Logo"
+              className="navbar-logo-img"
+            />
             <div className="navbar-logo-text">
               <span className="navbar-logo-name">Peace Be Upon Him</span>
               <span className="navbar-logo-sub">@peacebeuponhim</span>
             </div>
           </Link>
 
-          {/* Desktop nav links */}
+          {/* Center: primary nav links (desktop only) */}
           <div className="navbar-links" role="menubar">
-            {NAV_LINKS.map(({ to, key, icon: Icon, exact }) => (
+            {DESKTOP_NAV.map(({ to, key, icon: Icon, exact }) => (
               <NavLink
                 key={to}
                 to={to}
@@ -88,15 +94,14 @@ export default function Navbar() {
                 className={({ isActive }) => `navbar-link${isActive ? ' active' : ''}`}
                 role="menuitem"
               >
-                <Icon size={15} aria-hidden="true" />
+                <Icon size={14} aria-hidden="true" />
                 {t(key)}
               </NavLink>
             ))}
           </div>
 
-          {/* Actions */}
+          {/* Right: Search + hamburger (drawer trigger) */}
           <div className="navbar-actions">
-            {/* Search */}
             <button
               className="navbar-search-btn"
               onClick={openSearch}
@@ -104,29 +109,8 @@ export default function Navbar() {
               title="Search (Ctrl+K)"
             >
               <Search size={15} aria-hidden="true" />
-              <span>{t('search')}...</span>
-              <span className="navbar-search-shortcut">⌘K</span>
             </button>
 
-            {/* Theme toggle */}
-            <button
-              className="theme-toggle"
-              onClick={toggle}
-              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            >
-              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-
-            <NavLink
-              to="/settings"
-              className={({ isActive }) => `theme-toggle navbar-settings-link${isActive ? ' active' : ''}`}
-              aria-label="Settings"
-              title="Settings"
-            >
-              <Settings size={16} aria-hidden="true" />
-            </NavLink>
-
-            {/* Mobile hamburger */}
             <button
               className="navbar-hamburger"
               onClick={() => setMenuOpen(v => !v)}
@@ -136,10 +120,11 @@ export default function Navbar() {
               {menuOpen ? <X size={18} /> : <Menu size={18} />}
             </button>
           </div>
+
         </div>
       </nav>
 
-      {/* Mobile bottom nav */}
+      {/* ── Mobile bottom bar ── */}
       <nav className="bottom-nav" role="navigation" aria-label="Mobile navigation">
         <div className="bottom-nav-items">
           {BOTTOM_NAV.map(({ to, key, icon: Icon, exact }) => (
@@ -157,7 +142,7 @@ export default function Navbar() {
                       layoutId="bottomNavPill"
                       className="bottom-nav-pill"
                       initial={false}
-                      transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                      transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                     />
                   )}
                   <div className="bottom-nav-item-icon">
@@ -168,6 +153,8 @@ export default function Navbar() {
               )}
             </NavLink>
           ))}
+
+          {/* "More" button opens the full drawer */}
           <button
             className={`bottom-nav-item${menuOpen ? ' active' : ''}`}
             onClick={() => setMenuOpen(v => !v)}
@@ -180,7 +167,7 @@ export default function Navbar() {
                 layoutId="bottomNavPill"
                 className="bottom-nav-pill"
                 initial={false}
-                transition={{ type: "spring", stiffness: 350, damping: 30 }}
+                transition={{ type: 'spring', stiffness: 350, damping: 30 }}
               />
             )}
             <div className="bottom-nav-item-icon">
@@ -191,14 +178,14 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile drawer overlay */}
+      {/* ── Overlay ── */}
       <div
         className={`mobile-menu-overlay${menuOpen ? ' open' : ''}`}
         onClick={() => setMenuOpen(false)}
         aria-hidden="true"
       />
 
-      {/* Mobile drawer */}
+      {/* ── Full navigation drawer ── */}
       <div
         className={`mobile-menu-drawer${menuOpen ? ' open' : ''}`}
         role={menuOpen ? 'dialog' : undefined}
@@ -229,6 +216,8 @@ export default function Navbar() {
               <span>{t(key)}</span>
             </NavLink>
           ))}
+
+          {/* Search shortcut */}
           <button
             className="mobile-menu-link"
             onClick={() => { openSearch(); setMenuOpen(false); }}
@@ -236,10 +225,17 @@ export default function Navbar() {
             <Search size={22} aria-hidden="true" />
             <span>{t('search')}</span>
           </button>
-          <button className="mobile-menu-link" onClick={() => { toggle(); setMenuOpen(false); }}>
+
+          {/* Theme toggle — accessible via drawer, not navbar */}
+          <button
+            className="mobile-menu-link"
+            onClick={() => { toggle(); setMenuOpen(false); }}
+          >
             {theme === 'dark' ? <Sun size={22} /> : <Moon size={22} />}
             <span>{theme === 'dark' ? t('light') : t('dark')}</span>
           </button>
+
+
         </div>
       </div>
     </>

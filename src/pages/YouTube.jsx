@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { MonitorPlay as YoutubeIcon, Play, AlertCircle } from 'lucide-react';
 import { getLatestVideos, getLatestFullVideos, formatRelativeDate, formatDuration, formatCount, isConfigured } from '../services/youtube';
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
 
 export default function YouTubePage() {
   const [videos, setVideos] = useState([]);
@@ -20,7 +22,7 @@ export default function YouTubePage() {
       }
       setNextPage(data.nextPageToken || '');
     } catch (e) {
-      setError(e.message);
+      setError(parseError(e, 'YouTube videos'));
     } finally {
       setLoading(false);
     }
@@ -110,10 +112,13 @@ export default function YouTubePage() {
             ))}
           </div>
         ) : error ? (
-          <div className="empty-state">
-            <AlertCircle size={40} className="empty-state-icon" style={{ color: 'var(--color-error)' }} />
-            <p className="empty-state-title">Unable to load videos</p>
-            <p className="empty-state-desc">{error}</p>
+          <div style={{ marginTop: '2rem' }}>
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => loadVideos()} 
+            />
           </div>
         ) : (
           <>

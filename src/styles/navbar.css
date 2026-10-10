@@ -128,50 +128,9 @@
 
 .navbar-search-btn:hover { background: #1b5543; color: #ffffff; }
 
-/* Hide text/shortcut in search btn — icon-only circle */
-.navbar-search-btn span,
-.navbar-search-shortcut { display: none !important; }
-
-/* Theme toggle — circle button */
-.theme-toggle {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid #1b5543;
-  background: #124234;
-  color: #9fd7bb;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--transition-fast), background var(--transition-fast);
-}
-
-.theme-toggle:hover { background: #1b5543; color: #ffffff; }
-
-.navbar-settings-link {
-  text-decoration: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  border: 1px solid #1b5543;
-  background: #124234;
-  color: #9fd7bb;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color var(--transition-fast), background var(--transition-fast);
-}
-
-.navbar-settings-link:hover,
-.navbar-settings-link.active {
-  background: #1b5543;
-  color: #e9a825;
-}
-
-/* Mobile hamburger — circle */
+/* Hamburger — visible on tablet and desktop; hidden on mobile (bottom-nav handles it) */
 .navbar-hamburger {
-  display: none;
+  display: flex;
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -182,9 +141,46 @@
   align-items: center;
   justify-content: center;
   transition: color var(--transition-fast), background var(--transition-fast);
+  flex-shrink: 0;
 }
 
 .navbar-hamburger:hover { background: #1b5543; color: #ffffff; }
+
+/* Login button */
+.navbar-login-btn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid #1b5543;
+  background: #124234;
+  color: #9fd7bb;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  letter-spacing: 0.03em;
+}
+
+.navbar-login-btn:hover {
+  background: #1b5543;
+  color: #fff;
+}
+
+.navbar-login-btn--user {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+.navbar-login-avatar {
+  font-size: 14px;
+  font-weight: 700;
+  color: #f2ca50;
+}
+
 
 /* ============================================
    BOTTOM NAV (MOBILE) — floating pill bar (Figma)
@@ -377,13 +373,11 @@
 /* ============================================
    RESPONSIVE
    ============================================ */
-@media (min-width: 1024px) {
-  .navbar .container { max-width: 1280px; }
-}
 
+/* Mobile — ≤767px: hide top nav links; bottom bar handles navigation */
 @media (max-width: 767px) {
-  .navbar-links { display: none; }
-  .navbar-search-btn { display: flex; }
+  .navbar-links  { display: none; }
+  /* hamburger hidden — bottom bar's "More" button opens the drawer */
   .navbar-hamburger { display: none; }
   .bottom-nav { display: flex; }
   body .page-wrapper {
@@ -392,49 +386,55 @@
   .mobile-menu-drawer {
     max-height: calc(100dvh - 16px);
     padding: var(--space-3);
-    padding-bottom: calc(var(--space-3) + var(--bottom-nav-height) + var(--space-2) + env(safe-area-inset-bottom));
+    padding-bottom: calc(
+      var(--space-3) + var(--bottom-nav-height) + var(--space-2) + env(safe-area-inset-bottom)
+    );
   }
-  .mobile-menu-header {
-    margin-bottom: var(--space-3);
-  }
-  .mobile-menu-title {
-    font-size: var(--text-sm);
-  }
-  .mobile-menu-grid {
-    gap: var(--space-2);
-  }
+  .mobile-menu-header { margin-bottom: var(--space-3); }
+  .mobile-menu-title  { font-size: var(--text-sm); }
+  .mobile-menu-grid   { gap: var(--space-2); }
   .mobile-menu-link {
     gap: var(--space-1);
     padding: var(--space-2);
     font-size: 0.7rem;
   }
-  .mobile-menu-link svg {
-    width: 18px;
-    height: 18px;
-  }
+  .mobile-menu-link svg { width: 18px; height: 18px; }
 }
 
-@media (min-width: 768px) and (max-width: 1279px) {
+/* Tablet — 768-1023px: hide desktop nav links; hamburger visible (default flex) */
+@media (min-width: 768px) and (max-width: 1023px) {
   .navbar-links { display: none; }
-  .navbar-hamburger { display: flex; }
 }
 
+/* 768px+: give the drawer proper bottom padding (no bottom nav present) */
 @media (min-width: 768px) {
   .mobile-menu-drawer { padding-bottom: var(--space-6); }
 }
 
-@media (min-width: 1280px) {
+/* Desktop — ≥1024px: show 6 primary nav links, compact sizing */
+@media (min-width: 1024px) {
+  .navbar .container { max-width: 1280px; }
   .navbar-inner { gap: var(--space-3); }
+
   .navbar-links {
+    display: flex;
+    flex: 1;
     min-width: 0;
     justify-content: center;
-    gap: 4px;
+    align-items: center;
+    gap: 2px;
+    overflow: hidden;
   }
+
   .navbar-link {
-    gap: 5px;
-    padding: 6px;
-    font-size: 0.76rem;
+    gap: 4px;
+    padding: 6px 9px;
+    font-size: 0.74rem;
+    flex-shrink: 1;
+    white-space: nowrap;
   }
-  .navbar-link svg { width: 13px; height: 13px; }
-  .navbar-hamburger { display: none; }
+
+  .navbar-link svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+  /* hamburger stays visible (default flex) — opens the full drawer ("More") */
 }

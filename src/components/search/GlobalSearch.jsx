@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, X, BookOpen, MessageSquare, Heart, Loader } from 'lucide-react';
+import { Search, X, BookOpen, MessageSquare, Heart, Compass, Users, Loader } from 'lucide-react';
 import { useSearch } from '../../context/AppContext';
 import { searchQuran } from '../../services/quran';
 import { fetchDuasData, searchDuas } from '../../services/dua';
@@ -10,8 +10,8 @@ const QUICK_LINKS = [
   { label: 'Al-Fatiha', to: '/quran/1', type: 'Quran', icon: BookOpen },
   { label: 'Sahih al-Bukhari', to: '/hadith/bukhari', type: 'Collection', icon: MessageSquare },
   { label: 'Morning Adhkar', to: '/dua?category=morning', type: 'Dua', icon: Heart },
-  { label: 'Parents', to: '/explore/parents', type: 'Topic', icon: null },
-  { label: 'Youth & Iman', to: '/explore/youth', type: 'Topic', icon: null },
+  { label: 'Parents', to: '/explore/parents', type: 'Topic', icon: Users },
+  { label: 'Youth & Iman', to: '/explore/youth', type: 'Topic', icon: Compass },
 ];
 
 export default function GlobalSearch() {
@@ -91,6 +91,9 @@ export default function GlobalSearch() {
               <X size={15} />
             </button>
           )}
+          <button onClick={close} className="search-mobile-close" aria-label="Close search">
+            Done
+          </button>
         </div>
 
         <div className="search-body">
@@ -168,12 +171,6 @@ export default function GlobalSearch() {
           )}
         </div>
 
-        {/* Footer hint */}
-        <div className="search-footer">
-          <span className="search-hint-key">↑↓</span> navigate
-          <span className="search-hint-key">↵</span> select
-          <span className="search-hint-key">Esc</span> close
-        </div>
       </div>
     </div>
   );

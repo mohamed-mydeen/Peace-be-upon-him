@@ -1,5 +1,7 @@
+// Settings — no hooks needed here; useAuth provides history/removeHistory
 import { QURAN_RECITERS } from '../services/quran';
 import { useLang, useQuranAudioSettings, useTheme } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import ReciterPicker from '../components/quran/ReciterPicker';
 import './Settings.css';
 
@@ -7,6 +9,7 @@ export default function Settings() {
   const { lang, setLang, t, languages } = useLang();
   const { theme, setTheme } = useTheme();
   const { reciterId, setReciterId } = useQuranAudioSettings();
+  const { history, removeHistory } = useAuth();
 
   const THEMES = [
     { id: 'light', label: t('themeLight') },
@@ -89,6 +92,24 @@ export default function Settings() {
           <p className="settings-card-subtitle reciter-note">
             Bandar Baleela is available as a full-Surah recitation. Other reciters play ayah by ayah.
           </p>
+        </section>
+
+        {/* Device history — always available for anonymous users */}
+        <section className="settings-card" aria-labelledby="history-heading">
+          <div className="settings-card-header">
+            <div>
+              <h2 id="history-heading" className="settings-card-title">Your activity</h2>
+              <p className="settings-card-subtitle">Reading history saved on this device.</p>
+            </div>
+          </div>
+          <div className="settings-history-row">
+            <span>{history.length} saved activity {history.length === 1 ? 'item' : 'items'}</span>
+            {history.length > 0 && (
+              <button type="button" className="settings-clear-history" onClick={removeHistory}>
+                Clear history
+              </button>
+            )}
+          </div>
         </section>
 
         <div className="settings-info-card">

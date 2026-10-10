@@ -1,0 +1,140 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+<title>Madinah Community - Welcome</title>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', 'San Francisco', 'Helvetica Neue', 'sans-serif'],
+          },
+          colors: {
+            panel: '#f0f0f2',
+            inputbg: '#ffffff',
+            darkpill: '#161616',
+          }
+        }
+      }
+    }
+  </script>
+<style data-purpose="custom-layout">
+    /* Native mobile view styling & non-scroll layout */
+    body {
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .condensed-tracking {
+      letter-spacing: 0.04em;
+    }
+  </style>
+</head>
+<body class="h-full bg-black font-sans text-neutral-900 flex justify-center items-center overflow-x-hidden selection:bg-neutral-800 selection:text-white">
+<!-- BEGIN: MobileFrameContainer -->
+<!-- Container scaled for standard iOS mobile screen format -->
+<main class="relative w-full max-w-[420px] h-full min-h-[100dvh] bg-black flex flex-col justify-between overflow-hidden shadow-2xl">
+<!-- BEGIN: BackgroundImageAndOverlay -->
+<div class="absolute inset-0 z-0 pointer-events-none" data-purpose="cinematic-background">
+<img alt="Stunning daytime photography of Al-Masjid an-Nabawi in Madinah" class="w-full h-full object-cover object-center" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzp9EdHK6AAutbQ12o9EuX4iAssryXUAQt_nwKUTw-31UsOU8Js7Lu9Ln_b9NXTdVQI6NKUv-brXaM1LKQ1Bjsa8avL2r2iDdaYmH_QUMwLz4ZvQh5JsjYS_O9DzMk_dwMYrzlZ8_TMtq1wCc9gqMsxxIlcWcIEoff3QpWor4CfiL1262jPuekGl9L9jYvmus1s4qIVHWEcyoqZCLeD5Aa3Pg5UDae7UytVZKn9D3sp5y7-IiLhn7A">
+<!-- Atmospheric dark gradient for readability -->
+<div class="absolute inset-0 bg-gradient-to-b from-black/75 via-black/40 to-black/90"></div>
+</div>
+<!-- END: BackgroundImageAndOverlay -->
+<!-- BEGIN: iOSStatusBar -->
+<header class="relative z-10 w-full px-7 pt-3.5 flex justify-between items-center text-white text-xs font-semibold select-none" data-purpose="status-bar">
+<span class="">9:41</span>
+<!-- Dynamic Island / Sensor Notch Placeholder -->
+<div class="w-24 h-4 bg-black rounded-full mx-auto -mt-1 hidden sm:block opacity-60"></div>
+<div class="flex items-center space-x-1.5">
+<!-- Cellular Bars -->
+<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 16 16">
+<path d="M1 12h2v3H1v-3zm4-3h2v6H5V9zm4-3h2v9H9V6zm4-4h2v13h-2V2z"></path>
+</svg>
+<!-- Wifi Icon -->
+<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 16 16">
+<path d="M8 12a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm-4.95-3.05a7 7 0 0 1 9.9 0 .75.75 0 0 0 1.06-1.06 8.5 8.5 0 0 0-12.02 0 .75.75 0 0 0 1.06 1.06zm2.83 2.83a3 3 0 0 1 4.24 0 .75.75 0 0 0 1.06-1.06 4.5 4.5 0 0 0-6.36 0 .75.75 0 0 0 1.06 1.06z"></path>
+</svg>
+<!-- Battery Icon -->
+<div class="w-5 h-2.5 border border-white rounded-sm p-0.5 flex items-center">
+<div class="h-full w-full bg-white rounded-2xs"></div>
+</div>
+</div>
+</header>
+<!-- END: iOSStatusBar -->
+<!-- BEGIN: UpperHeroContent -->
+<section class="relative z-10 flex-1 flex flex-col items-center justify-center text-center px-6 pb-4" data-purpose="hero-branding">
+<!-- Minimalist Islamic Rosette Emblem & Tagline -->
+<div class="flex items-center space-x-2 text-white/90 mb-3 drop-shadow-md">
+<!-- Geometric Star Rosette Icon -->
+<svg class="w-5 h-5 text-emerald-400/90" fill="currentColor" viewBox="0 0 24 24">
+<path d="M12 2l2.4 4.8 5.3.8-3.8 3.7.9 5.3L12 16.1l-4.8 2.5.9-5.3-3.8-3.7 5.3-.8L12 2z"></path>
+</svg>
+<span class="text-xs uppercase tracking-widest font-medium text-emerald-300">Peace Be Upon Him</span>
+</div>
+<!-- Main Headline matching reference poster style -->
+<h1 class="text-3xl sm:text-4xl font-extrabold uppercase text-white tracking-wider condensed-tracking leading-tight drop-shadow-lg">
+        Madinah Events<br>Community
+      </h1>
+<!-- Reference Carousel Pagination Dots -->
+<div aria-hidden="true" class="flex items-center justify-center space-x-1.5 mt-5">
+<span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+<span class="w-5 h-1.5 rounded-full bg-white shadow-sm transition-all"></span>
+<span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+</div>
+</section>
+<!-- END: UpperHeroContent -->
+<!-- BEGIN: BottomSheetForm -->
+<!-- Curved Minimalist Light Gray Modal Card -->
+<section class="relative z-20 bg-panel w-full rounded-t-[36px] pt-7 pb-8 px-6 sm:px-8 shadow-2xl flex flex-col justify-end" data-purpose="registration-card">
+<form class="w-full flex flex-col space-y-3.5" onsubmit="event.preventDefault();">
+<!-- Full Name Input Field -->
+<div class="relative" data-purpose="input-group">
+<label class="sr-only" for="fullName">Full Name</label>
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
+<!-- User Icon -->
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<input class="w-full pl-11 pr-4 py-3.5 bg-inputbg text-sm text-neutral-900 placeholder:text-neutral-400 rounded-2xl border border-neutral-200/90 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition shadow-xs" id="fullName" name="fullName" placeholder="Full Name" required="" type="text">
+</div>
+<!-- Age Input Field -->
+<div class="relative" data-purpose="input-group">
+<label class="sr-only" for="userAge">Age</label>
+<div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-neutral-400">
+<!-- Calendar/Age Icon -->
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+<path d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+</div>
+<input class="w-full pl-11 pr-4 py-3.5 bg-inputbg text-sm text-neutral-900 placeholder:text-neutral-400 rounded-2xl border border-neutral-200/90 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition shadow-xs" id="userAge" max="120" min="10" name="userAge" placeholder="Age" required="" type="number">
+</div>
+<!-- Primary Action Button: Pill Dark Button -->
+<button class="w-full py-4 mt-1 bg-darkpill active:scale-[0.98] text-white text-sm font-semibold rounded-full shadow-md hover:bg-neutral-800 transition flex items-center justify-center tracking-wide" type="submit">
+          Continue
+        </button>
+<!-- Secondary Log In Button / Outline Pill Style -->
+<a class="w-full py-3.5 text-center bg-transparent active:scale-[0.98] text-neutral-800 text-sm font-semibold rounded-full border border-neutral-300 hover:border-neutral-400 transition block tracking-wide" href="#login">
+          Already have an account? Log in
+        </a>
+</form>
+<!-- Bottom Disclaimer / Legal notice -->
+<footer class="mt-6 text-center text-[11px] text-neutral-500 leading-relaxed px-2">
+        By continuing, you agree to Peace Be Upon Him's
+        <br>
+<a class="font-bold underline text-neutral-800 hover:text-black" href="#privacy">Privacy Policy</a> 
+        and 
+        <a class="font-bold underline text-neutral-800 hover:text-black" href="#terms">Terms of Use</a>
+</footer>
+<!-- iOS Home Indicator bar -->
+<div aria-hidden="true" class="w-32 h-1 bg-neutral-300 rounded-full mx-auto mt-5"></div>
+</section>
+<!-- END: BottomSheetForm -->
+</main>
+<!-- END: MobileFrameContainer -->
+
+
+</body></html>

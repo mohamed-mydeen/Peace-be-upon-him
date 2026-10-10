@@ -4,6 +4,8 @@ import { fetchAfterSalahData } from '../services/after-salah';
 import { useBookmarks } from '../context/AppContext';
 import { useState, useEffect } from 'react';
 import '../styles/global.css';
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
 
 export default function AfterSalah() {
   const { isBookmarked, toggle: toggleBookmark } = useBookmarks();
@@ -20,7 +22,7 @@ export default function AfterSalah() {
         const data = await fetchAfterSalahData();
         setDhikrList(data);
       } catch (err) {
-        setError('Failed to load after salah dhikr.');
+        setError(parseError(err, 'After Salah Duas'));
       } finally {
         setLoading(false);
       }
@@ -53,8 +55,13 @@ export default function AfterSalah() {
             <p>Loading dhikr...</p>
           </div>
         ) : error ? (
-          <div className="error-container">
-            <p>{error}</p>
+          <div style={{ marginBottom: '2rem' }}>
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => window.location.reload()} 
+            />
           </div>
         ) : (
           <div className="after-salah-list" style={{ maxWidth: '800px', margin: '0 auto' }}>

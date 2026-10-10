@@ -16,7 +16,7 @@ import { AuthProvider } from './context/AuthContext';
 import Navbar from './components/navbar/Navbar';
 import Footer from './components/footer/Footer';
 import GlobalSearch from './components/search/GlobalSearch';
-import AuthModal from './components/auth/AuthModal';
+// AuthModal removed — no login required
 
 // Pages
 import Home from './pages/Home';
@@ -99,16 +99,13 @@ function useDisableBrowserZoomAndCopy() {
 
 export default function App() {
   const location = useLocation();
-  const [hasStarted, setHasStarted] = useState(
-    () => localStorage.getItem('peace-welcome-complete') === 'true',
-  );
+  const [hasStarted, setHasStarted] = useState(false);
 
   const startApp = () => {
-    localStorage.setItem('peace-welcome-complete', 'true');
     setHasStarted(true);
   };
 
-  const [showAuth, setShowAuth] = useState(false);
+  // showAuth removed — anonymous device identity; no login flow needed
 
   useDisableBrowserZoomAndCopy();
 
@@ -124,7 +121,7 @@ export default function App() {
               ) : (
                 <div className="app-container">
                   <ScrollToTop />
-                  <Navbar onAuthClick={() => setShowAuth(true)} />
+                  <Navbar />
                   <AnimatePresence mode="wait">
                     <motion.div
                       key={location.pathname}
@@ -158,12 +155,23 @@ export default function App() {
                         <Route path="/lessons/:subjectId/:lessonId" element={<Lessons />} />
                         <Route path="/names-of-allah" element={<NamesOfAllah />} />
                         <Route path="/qibla" element={<QiblaPage />} />
+                        <Route path="*" element={
+                          <main className="page-wrapper fade-in" id="main-content">
+                            <div className="container" style={{ padding: '4rem 1rem', textAlign: 'center' }}>
+                              <h1 style={{ fontSize: '4rem', margin: 0, color: 'var(--color-primary)' }}>404</h1>
+                              <p style={{ color: 'var(--color-text-secondary)', marginBottom: '1.5rem' }}>
+                                Page not found
+                              </p>
+                              <a href="/" className="btn btn-primary">Go Home</a>
+                            </div>
+                          </main>
+                        } />
                       </Routes>
                     </motion.div>
                   </AnimatePresence>
                   {location.pathname === '/' && <Footer />}
                   <GlobalSearch />
-                  {showAuth && <AuthModal onClose={() => setShowAuth(false)} />}
+
                 </div>
               )}
             </SearchProvider>

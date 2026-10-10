@@ -4,6 +4,8 @@ import { RotateCcw, Plus, Loader2 } from 'lucide-react';
 import { fetchDhikrData, getDhikrBySession } from '../services/dhikr';
 import PageHero from '../components/PageHero';
 import dhikrBanner from '../assets/dhikr-banner.svg';
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
 import './Dhikr.css';
 
 export default function Dhikr() {
@@ -31,7 +33,7 @@ export default function Dhikr() {
         setAllDhikrs(data.dhikrList || []);
         setSessions(data.sessions || []);
       } catch (err) {
-        setError('Failed to load dhikr.');
+        setError(parseError(err, 'Dhikr'));
       } finally {
         setLoading(false);
       }
@@ -94,8 +96,13 @@ export default function Dhikr() {
             <p>Loading dhikr...</p>
           </div>
         ) : error ? (
-          <div className="error-container">
-            <p>{error}</p>
+          <div style={{ marginBottom: '2rem' }}>
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => window.location.reload()} 
+            />
           </div>
         ) : (
           <>

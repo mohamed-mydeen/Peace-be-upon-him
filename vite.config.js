@@ -81,29 +81,43 @@ export default defineConfig(({ mode }) => {
   })
 
   return {
+    server: {
+      proxy: {
+        // Forward backend auth / history / device API calls to the local Express backend.
+        '/api/auth':    { target: 'http://localhost:5000', changeOrigin: true },
+        '/api/history': { target: 'http://localhost:5000', changeOrigin: true },
+        '/api/device':  { target: 'http://localhost:5000', changeOrigin: true },
+      },
+    },
     plugins: [
       react(),
       localApiProxy(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'channels4_profile.jpg'],
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'channels4_profile.jpg', 'logo-192.png', 'logo-512.png'],
         manifest: {
           name: 'Peace be upon him',
           short_name: 'Peace',
           description: 'Tamil Islamic Knowledge Platform',
-          theme_color: '#1a1f1c',
-          background_color: '#1a1f1c',
+          theme_color: '#0e382b',
+          background_color: '#0e382b',
           display: 'standalone',
           icons: [
             {
-              src: '/channels4_profile.jpg',
+              src: '/logo-192.png',
               sizes: '192x192',
-              type: 'image/jpeg'
+              type: 'image/png'
             },
             {
-              src: '/channels4_profile.jpg',
+              src: '/logo-512.png',
               sizes: '512x512',
-              type: 'image/jpeg'
+              type: 'image/png'
+            },
+            {
+              src: '/logo-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'any maskable'
             }
           ]
         },

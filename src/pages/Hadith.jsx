@@ -4,6 +4,8 @@ import { Search, Filter, ArrowLeft, Bookmark, Share2, Copy, ChevronRight, BookOp
 import { COLLECTIONS, HADITH_CATEGORIES, GRADES, COLLECTION_BOOKS, getCollection, getHadiths, getHadithsByBook, getHadith } from '../services/hadith';
 import { useBookmarks } from '../context/AppContext';
 import PageHero from '../components/PageHero';
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
 import hadithBanner from '../assets/hadith-banner.svg';
 import './Hadith.css';
 
@@ -87,7 +89,7 @@ function CollectionDetail({ collectionId }) {
     setLoading(true);
     getHadiths(collectionId, { page, limit: 20 })
       .then(data => setHadiths(data.hadiths || []))
-      .catch(e => setError(e.message))
+      .catch(e => setError(parseError(e, 'Hadiths')))
       .finally(() => setLoading(false));
   }, [collectionId, page, col, activeTab]);
 
@@ -145,12 +147,13 @@ function CollectionDetail({ collectionId }) {
         {activeTab === 'hadiths' && (
           <>
             {error && (
-              <div className="hadith-error">
-                <AlertCircle size={18} />
-                <div>
-                  <p>Unable to load hadiths. The free API may be temporarily unavailable.</p>
-                  <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: 4 }}>{error}</p>
-                </div>
+              <div style={{ marginBottom: '1.5rem' }}>
+                <FriendlyError 
+                  title={error.title} 
+                  message={error.message} 
+                  icon={error.icon} 
+                  onRetry={() => window.location.reload()} 
+                />
               </div>
             )}
 
@@ -497,7 +500,7 @@ export function HadithBook() {
         setBookName(data.bookName);
         if (data.error) setError(data.error);
       })
-      .catch(e => setError(e.message))
+      .catch(e => setError(parseError(e, 'Hadiths')))
       .finally(() => setLoading(false));
   }, [collectionId, bookId]);
 
@@ -516,12 +519,13 @@ export function HadithBook() {
         </div>
 
         {error && (
-          <div className="hadith-error">
-            <AlertCircle size={18} />
-            <div>
-              <p>Unable to load hadiths for this book.</p>
-              <p style={{ fontSize: '0.8rem', opacity: 0.7, marginTop: 4 }}>{error}</p>
-            </div>
+          <div style={{ marginBottom: '1.5rem' }}>
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => window.location.reload()} 
+            />
           </div>
         )}
 

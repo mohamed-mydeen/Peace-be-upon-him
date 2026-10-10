@@ -40,13 +40,33 @@ const ThemeContext = createContext(null);
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
     const stored = localStorage.getItem('theme');
-    if (stored) return stored;
+    if (stored === 'light' || stored === 'dark' || stored === 'system') return stored;
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   });
 
+  // Resolve the effective data-theme value
+  const resolveEffective = (t) => {
+    if (t === 'system') {
+      return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    return t;
+  };
+
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme);
-    localStorage.setItem('theme', theme);
+    const applyTheme = (t) => {
+      document.documentElement.setAttribute('data-theme', resolveEffective(t));
+      localStorage.setItem('theme', t);
+    };
+
+    applyTheme(theme);
+
+    // When "system" is selected, track OS preference changes in real time
+    if (theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = () => applyTheme('system');
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
+    }
   }, [theme]);
 
   const toggle = useCallback(() => {

@@ -11,52 +11,30 @@ import {
 import PrayerTimes from '../components/prayer/PrayerTimes';
 import './Home.css';
 
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
+
 /* ── Skeleton helpers ── */
 function StatSkeleton() {
   return (
-    <div className="hm-stat-card">
-      <div className="skeleton" style={{ width: 40, height: 20, marginBottom: 8 }} />
-      <div className="skeleton" style={{ width: 60, height: 12 }} />
-    </div>
+    <div className="hm-stat-card skeleton-pulse" style={{ height: '80px' }}></div>
   );
 }
 
 function VideoSkeleton() {
   return (
-    <div className="hm-video-row">
-      <div className="hm-video-thumb skeleton" />
-      <div className="hm-video-info">
-        <div className="skeleton" style={{ height: 13, marginBottom: 8, borderRadius: 4 }} />
-        <div className="skeleton" style={{ height: 11, width: '55%', borderRadius: 4 }} />
-      </div>
-    </div>
+    <div className="hm-video-row skeleton-pulse" style={{ height: '80px', borderRadius: '12px' }}></div>
   );
 }
 
 function NotConfigured() {
   return (
-      <div className="yt-not-configured">
-        <h3 className="yt-nc-title">YouTube Integration Not Configured</h3>
-        <p className="yt-nc-desc">
-          Add <code>VITE_YOUTUBE_CHANNEL_ID</code> to your Vercel Environment Variables (and <code>YOUTUBE_API_KEY</code>) to enable YouTube channel integration.
-        </p>
-        <Link to="/about" className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }}>
-          Setup Instructions →
-        </Link>
-      </div>
-    );
-  }
-  
-  function ConnectionError({ onRetry }) {
-    return (
-      <div className="hm-error-state">
-        <p>Could not load content right now.</p>
-        <button className="hm-error-retry" onClick={onRetry}>
-          <RefreshCw size={12} /> Try again
-        </button>
-      </div>
-    );
-  }
+    <div className="empty-state">
+      <p className="empty-state-title">YouTube Integration Not Configured</p>
+      <p className="empty-state-desc">Please set your YouTube API key in the configuration.</p>
+    </div>
+  );
+}
 
 /* ── Video Card ── */
 function VideoCard({ video }) {
@@ -108,17 +86,18 @@ export default function Home() {
   const [channel, setChannel] = useState(null);
   const [videos, setVideos]   = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState('');
+  const [error, setError]     = useState(null);
 
-  const loadHomeData = useCallback(async () => {
+  const loadHomeData = useCallback(async (isRetry = false) => {
     setLoading(true);
-    setError('');
+    if (!isRetry) setError('');
     try {
       const [ch, vids] = await Promise.all([getChannelInfo(), getLatestVideos({ maxResults: 4 })]);
       setChannel(ch);
       setVideos(vids.videos || []);
+      setError('');
     } catch (e) {
-      setError(e.message);
+      setError(parseError(e, 'YouTube content'));
     } finally {
       setLoading(false);
     }
@@ -224,7 +203,7 @@ export default function Home() {
 
         {!isConfigured
           ? <NotConfigured />
-          : loading
+          : loading && !error
           ? (
             <div className="hm-stats-wrap">
               <div className="hm-stats-grid">
@@ -234,7 +213,13 @@ export default function Home() {
           )
           : error
           ? (
-            <ConnectionError onRetry={loadHomeData} />
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => loadHomeData(true)} 
+              isRetrying={loading}
+            />
           )
           : channel && (
             <div className="hm-stats-wrap">
@@ -280,7 +265,7 @@ export default function Home() {
 
         {!isConfigured
           ? <NotConfigured />
-          : loading
+          : loading && !error
           ? (
             <div className="hm-videos-list">
               {Array(3).fill(0).map((_, i) => <VideoSkeleton key={i} />)}
@@ -288,7 +273,13 @@ export default function Home() {
           )
           : error
           ? (
-            <ConnectionError onRetry={loadHomeData} />
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => loadHomeData(true)} 
+              isRetrying={loading}
+            />
           )
           : videos.length > 0
           ? <div className="hm-videos-list">{videos.map(v => <VideoCard key={v.id} video={v} />)}</div>

@@ -56,6 +56,30 @@
   text-align: center;
 }
 
+.welcome-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.welcome-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  margin-bottom: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.welcome-app-name {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #e9a825;
+  letter-spacing: 0.02em;
+}
+
 .welcome-content h1 {
   margin: 0 0 8px;
   color: #fff;
@@ -74,6 +98,10 @@
 }
 
 .welcome-start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   width: 100%;
   min-height: 64px;
   border-radius: 16px;
@@ -153,4 +181,17 @@
   .welcome-start {
     transition: none;
   }
+}
+
+.welcome-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(20, 35, 27, 0.3);
+  border-left-color: #14231b;
+  border-radius: 50%;
+  animation: welcome-spin 1s linear infinite;
+}
+
+@keyframes welcome-spin {
+  to { transform: rotate(360deg); }
 }

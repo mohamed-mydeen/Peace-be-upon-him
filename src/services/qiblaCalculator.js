@@ -10,6 +10,16 @@ const toRad = (deg) => (deg * Math.PI) / 180;
 const toDeg = (rad) => (rad * 180) / Math.PI;
 const R_EARTH = 6371.0088; // mean Earth radius in km (WGS-84)
 
+/** Keep a compass angle in the [0, 360) range. */
+export function normalizeBearing(degrees) {
+  return ((degrees % 360) + 360) % 360;
+}
+
+/** Shortest signed turn from `from` to `to`, in the [-180, 180) range. */
+export function shortestAngleDifference(from, to) {
+  return normalizeBearing(to - from + 180) - 180;
+}
+
 /**
  * Calculate the Qibla bearing from a user location using the
  * initial-bearing great-circle formula.
@@ -29,7 +39,7 @@ export function calculateQiblaBearing(userLat, userLon) {
     Math.sin(φ1) * Math.cos(φ2) * Math.cos(Δλ);
 
   const θ = Math.atan2(y, x);
-  return (toDeg(θ) + 360) % 360;
+  return normalizeBearing(toDeg(θ));
 }
 
 /**
@@ -40,16 +50,27 @@ export function calculateQiblaBearing(userLat, userLon) {
  * @param {number} bearing   — target Qibla bearing [0, 360)
  * @returns {{ direction: 'left'|'right'|'aligned', degrees: number }}
  */
-export function calculateTurnDirection(heading, bearing) {
-  let diff = ((bearing - heading + 540) % 360) - 180; // normalize to [-180, 180]
+export function calculateTurnDirection(heading, bearing, alignedThreshold = 5) {
+  const diff = shortestAngleDifference(heading, bearing);
   const absDiff = Math.abs(diff);
 
-  if (absDiff <= 3) return { direction: 'aligned', degrees: 0 };
+  if (absDiff <= alignedThreshold) return { direction: 'aligned', degrees: absDiff };
 
   return {
     direction: diff < 0 ? 'left' : 'right',
     degrees: absDiff,
   };
+}
+
+/**
+ * Apply entry/exit hysteresis so small sensor fluctuations do not flicker the
+ * success state. Enter at `enterThreshold`; leave only after `exitThreshold`.
+ */
+export function getAlignmentState(difference, wasAligned, enterThreshold = 5, exitThreshold = 8) {
+  const absDifference = Math.abs(difference);
+  if (wasAligned && absDifference <= exitThreshold) return 'aligned';
+  if (absDifference <= enterThreshold) return 'aligned';
+  return absDifference <= 15 ? 'near' : 'not-aligned';
 }
 
 /**
@@ -84,6 +105,6 @@ export function calculateDistanceToKaaba(userLat, userLon) {
  */
 export function smoothHeading(prev, raw, alpha = 0.15) {
   if (prev === null || prev === undefined) return raw;
-  const Δ = ((raw - prev + 540) % 360) - 180; // shortest delta
-  return (prev + alpha * Δ + 360) % 360;
+  const Δ = shortestAngleDifference(prev, raw);
+  return normalizeBearing(prev + alpha * Δ);
 }

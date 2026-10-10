@@ -4,6 +4,8 @@ import { Search, Bookmark, Copy, Share2, Filter, Heart, Loader2 } from 'lucide-r
 import { fetchDuasData, searchDuas } from '../services/dua';
 import { useBookmarks } from '../context/AppContext';
 import PageHero from '../components/PageHero';
+import FriendlyError from '../components/ui/FriendlyError';
+import { parseError } from '../utils/errorHandling';
 import duaBanner from '../assets/dua-banner.svg';
 import './Dua.css';
 
@@ -29,7 +31,7 @@ export default function Dua() {
         setDuas(data.duas || []);
         setCategories(data.categories || []);
       } catch (err) {
-        setError('Failed to load duas.');
+        setError(parseError(err, 'Duas'));
       } finally {
         setLoading(false);
       }
@@ -116,8 +118,13 @@ export default function Dua() {
             <p>Loading duas...</p>
           </div>
         ) : error ? (
-          <div className="error-container">
-            <p>{error}</p>
+          <div style={{ marginBottom: '2rem' }}>
+            <FriendlyError 
+              title={error.title} 
+              message={error.message} 
+              icon={error.icon} 
+              onRetry={() => window.location.reload()} 
+            />
           </div>
         ) : (
           <div className="dua-list">

@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
-import { Clock, MapPin, Loader2, AlertCircle } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Clock, MapPin, AlertCircle } from 'lucide-react';
+import FriendlyError from '../ui/FriendlyError';
+import { parseError } from '../../utils/errorHandling';
 import masjidBg from '../../assets/masjid-banner.svg';
 import './PrayerTimes.css';
 
 const DISTRICTS = [
-  'Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli',
-  'Salem', 'Tirunelveli', 'Vellore', 'Erode',
-  'Thoothukudi', 'Tiruppur', 'Kanyakumari', 'Thanjavur'
+  'Ariyalur', 'Chengalpattu', 'Chennai', 'Coimbatore', 'Cuddalore', 'Dharmapuri', 'Dindigul',
+  'Erode', 'Kallakurichi', 'Kanchipuram', 'Kanyakumari', 'Karur', 'Krishnagiri', 'Madurai',
+  'Mayiladuthurai', 'Nagapattinam', 'Namakkal', 'Nilgiris', 'Perambalur', 'Pudukkottai',
+  'Ramanathapuram', 'Ranipet', 'Salem', 'Sivaganga', 'Tenkasi', 'Thanjavur', 'Theni',
+  'Thoothukudi', 'Tiruchirappalli', 'Tirunelveli', 'Tirupattur', 'Tiruppur', 'Tiruvallur',
+  'Tiruvannamalai', 'Tiruvarur', 'Vellore', 'Viluppuram', 'Virudhunagar'
 ];
 
 const PRAYERS = [
@@ -55,29 +60,31 @@ export default function PrayerTimes() {
   );
   const [timings, setTimings]       = useState(null);
   const [loading, setLoading]       = useState(true);
-  const [error, setError]           = useState('');
+  const [error, setError]           = useState(null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  useEffect(() => {
-    async function fetchPrayerTimes() {
-      setLoading(true);
-      setError('');
-      try {
-        const res = await fetch(
-          `https://api.aladhan.com/v1/timingsByCity?city=${district}&country=India&method=1`
-        );
-        if (!res.ok) throw new Error('Failed to fetch prayer times');
-        const data = await res.json();
-        setTimings(data.data.timings);
-        localStorage.setItem('prayer-district', district);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  const fetchPrayerTimes = useCallback(async (isRetry = false) => {
+    setLoading(true);
+    if (!isRetry) setError(null);
+    try {
+      const res = await fetch(
+        `https://api.aladhan.com/v1/timingsByCity?city=${district}&country=India&method=1`
+      );
+      if (!res.ok) throw new Error('Failed to fetch prayer times');
+      const data = await res.json();
+      setTimings(data.data.timings);
+      setError(null);
+      localStorage.setItem('prayer-district', district);
+    } catch (err) {
+      setError(parseError(err, 'prayer times'));
+    } finally {
+      setLoading(false);
     }
-    fetchPrayerTimes();
   }, [district]);
+
+  useEffect(() => {
+    fetchPrayerTimes();
+  }, [fetchPrayerTimes]);
 
   useEffect(() => {
     const closeDropdown = (e) => {
@@ -139,15 +146,25 @@ export default function PrayerTimes() {
         </div>
       </div>
 
-      {/* Grid */}
-      {loading ? (
-        <div className="prayer-loading">
-          <Loader2 size={20} className="spinner" />
-          <span>Loading timings…</span>
+      {/* Reserve the timetable layout while data is loading to prevent layout shift. */}
+      {loading && !error ? (
+        <div className="prayer-grid" aria-busy="true" aria-label="Loading prayer times">
+          {PRAYERS.map((prayer) => (
+            <div key={prayer.key} className="prayer-card prayer-card-loading" aria-hidden="true">
+              <span className="prayer-skeleton prayer-skeleton-label" />
+              <span className="prayer-skeleton prayer-skeleton-time" />
+            </div>
+          ))}
         </div>
       ) : error ? (
-        <div className="prayer-error">
-          <AlertCircle size={16} /><span>{error}</span>
+        <div style={{ padding: '0 16px 16px' }}>
+          <FriendlyError 
+            title={error.title} 
+            message={error.message} 
+            icon={error.icon} 
+            onRetry={() => fetchPrayerTimes(true)} 
+            isRetrying={loading}
+          />
         </div>
       ) : (
         <div className="prayer-grid">

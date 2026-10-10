@@ -1,349 +1,239 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Navigation2, MapPin, RefreshCw, Compass, AlertTriangle, WifiOff } from 'lucide-react';
-import { calculateQiblaBearing, calculateTurnDirection, smoothHeading } from '../services/qiblaCalculator';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  CheckCircle2, Compass, MapPin, Navigation, RefreshCw,
+  RotateCw, ShieldCheck, TriangleAlert,
+} from 'lucide-react';
+import {
+  calculateQiblaBearing, getAlignmentState, normalizeBearing,
+  shortestAngleDifference, smoothHeading,
+} from '../services/qiblaCalculator';
 import './Qibla.css';
 
-const ALIGN_THRESHOLD        = 5;    // degrees — "Facing Qibla"
-const NEAR_THRESHOLD         = 15;   // degrees — "Almost aligned"
-const SENSOR_TIMEOUT_MS      = 4000; // ms to wait before declaring no sensor
-const CALIBRATION_EVENTS     = 40;   // show calibration tip after N events
+const ALIGN_ENTER_THRESHOLD = 5;
+const ALIGN_EXIT_THRESHOLD = 8;
+const SENSOR_TIMEOUT_MS = 4500;
 
 const hasIOSPermissionGate =
   typeof DeviceOrientationEvent !== 'undefined' &&
   typeof DeviceOrientationEvent.requestPermission === 'function';
 
-function CompassDisc({ rotation, qiblaBearing, animate, staticMode }) {
+function headingFromEvent(event) {
+  if (Number.isFinite(event.webkitCompassHeading)) return normalizeBearing(event.webkitCompassHeading);
+  if (event.absolute === true && Number.isFinite(event.alpha)) {
+    // The W3C alpha axis is based on the device's natural (portrait) screen
+    // orientation. Correct it when the user holds the screen in landscape.
+    const screenAngle = window.screen?.orientation?.angle ?? window.orientation ?? 0;
+    return normalizeBearing(360 - event.alpha + screenAngle);
+  }
+  return null;
+}
+
+function CompassDial({ heading, qiblaBearing, alignment }) {
+  const dialRotation = heading == null ? 0 : -heading;
+  const targetRotation = heading != null && qiblaBearing != null
+    ? shortestAngleDifference(heading, qiblaBearing) : 0;
+  const isAligned = alignment === 'aligned';
+
   return (
-    <svg
-      className="qibla-compass-svg"
-      viewBox="0 0 320 320"
-      aria-hidden="true"
-      style={{
-        transform: `rotate(${rotation}deg)`,
-        transition: animate ? 'transform 0.1s linear' : 'none',
-        willChange: 'transform',
-      }}
-    >
-      <circle cx="160" cy="160" r="158" fill="var(--color-bg-card)" stroke="var(--color-border)" strokeWidth="1.5" />
-      <circle cx="160" cy="160" r="146" fill="none" stroke="var(--color-border)" strokeWidth="0.5" opacity="0.35" />
-
-      {Array.from({ length: 72 }).map((_, i) => {
-        const deg = i * 5;
-        const rad = (deg * Math.PI) / 180;
-        const isMajor = i % 18 === 0;
-        const isMed   = i % 6  === 0;
-        const isSub   = i % 3  === 0;
-        const r1 = 146;
-        const r2 = isMajor ? 120 : isMed ? 130 : isSub ? 137 : 142;
-        return (
-          <line
-            key={i}
-            x1={160 + r1 * Math.sin(rad)} y1={160 - r1 * Math.cos(rad)}
-            x2={160 + r2 * Math.sin(rad)} y2={160 - r2 * Math.cos(rad)}
-            stroke="var(--color-text-tertiary)"
-            strokeWidth={isMajor ? 2.5 : isMed ? 1.5 : 0.7}
-            opacity={isMajor ? 1 : isMed ? 0.6 : 0.28}
-          />
-        );
-      })}
-
-      {[30, 60, 120, 150, 210, 240, 300, 330].map(deg => {
-        const rad = (deg * Math.PI) / 180;
-        return (
-          <text key={deg}
-            x={160 + 108 * Math.sin(rad)} y={160 - 108 * Math.cos(rad) + 4}
-            textAnchor="middle" fontSize="10"
-            fill="var(--color-text-muted)" fontFamily="Inter,sans-serif"
-          >{deg}</text>
-        );
-      })}
-
-      {[
-        { l: 'N', d: 0,   c: '#e74c3c', fw: '800', sz: 22 },
-        { l: 'E', d: 90,  c: 'var(--color-text-secondary)', fw: '600', sz: 17 },
-        { l: 'S', d: 180, c: 'var(--color-text-secondary)', fw: '600', sz: 17 },
-        { l: 'W', d: 270, c: 'var(--color-text-secondary)', fw: '600', sz: 17 },
-      ].map(({ l, d, c, fw, sz }) => {
-        const rad = (d * Math.PI) / 180;
-        return (
-          <text key={l}
-            x={160 + 120 * Math.sin(rad)} y={160 - 120 * Math.cos(rad) + 6}
-            textAnchor="middle" fontSize={sz} fontWeight={fw}
-            fill={c} fontFamily="Inter,sans-serif"
-          >{l}</text>
-        );
-      })}
-
-      {staticMode && qiblaBearing != null && (() => {
-        const rad = (qiblaBearing * Math.PI) / 180;
-        return (
-          <line x1="160" y1="160"
-            x2={160 + 138 * Math.sin(rad)} y2={160 - 138 * Math.cos(rad)}
-            stroke="var(--color-gold)" strokeWidth="2.5"
-            strokeDasharray="7 5" opacity="0.7"
-          />
-        );
-      })()}
-
-      {!staticMode && qiblaBearing != null && (() => {
-        const rad = (qiblaBearing * Math.PI) / 180;
-        return (
-          <line x1="160" y1="160"
-            x2={160 + 138 * Math.sin(rad)} y2={160 - 138 * Math.cos(rad)}
-            stroke="var(--color-gold)" strokeWidth="1.5"
-            strokeDasharray="5 4" opacity="0.4"
-          />
-        );
-      })()}
-    </svg>
+    <div className={`qibla-dial ${isAligned ? 'is-aligned' : ''}`} role="img" aria-label="Qibla compass">
+      <div className="qibla-forward-marker" aria-hidden="true" />
+      <svg className="qibla-dial-svg" viewBox="0 0 320 320" aria-hidden="true">
+        <g style={{ transform: `rotate(${dialRotation}deg)`, transformOrigin: '160px 160px' }}>
+          <circle cx="160" cy="160" r="157" className="qibla-dial-face" />
+          <circle cx="160" cy="160" r="145" className="qibla-dial-inner" />
+          {Array.from({ length: 72 }).map((_, index) => {
+            const degrees = index * 5;
+            const radians = (degrees * Math.PI) / 180;
+            const major = index % 18 === 0;
+            const medium = index % 6 === 0;
+            const inner = major ? 119 : medium ? 129 : 137;
+            return <line key={degrees}
+              x1={160 + 145 * Math.sin(radians)} y1={160 - 145 * Math.cos(radians)}
+              x2={160 + inner * Math.sin(radians)} y2={160 - inner * Math.cos(radians)}
+              className={`qibla-tick${major ? ' major' : medium ? ' medium' : ''}`} />;
+          })}
+          {[['N', 0], ['E', 90], ['S', 180], ['W', 270]].map(([label, degrees]) => {
+            const radians = (degrees * Math.PI) / 180;
+            return <text key={label} x={160 + 116 * Math.sin(radians)} y={166 - 116 * Math.cos(radians)}
+              textAnchor="middle" className={`qibla-cardinal ${label === 'N' ? 'north' : ''}`}>{label}</text>;
+          })}
+        </g>
+      </svg>
+      {qiblaBearing != null && <div className="qibla-pointer" aria-hidden="true"
+        style={{ transform: `translateX(-50%) rotate(${targetRotation}deg)` }}>
+        <svg viewBox="0 0 32 118" className="qibla-pointer-svg">
+          <path d="M16 5 26 101 16 114 6 101Z" className="qibla-pointer-body" />
+          <circle cx="16" cy="12" r="7" className="qibla-pointer-tip" />
+          <path d="M16 19 19 91 16 98 13 91Z" className="qibla-pointer-shine" />
+        </svg>
+      </div>}
+      <div className="qibla-dial-center" aria-hidden="true">
+        <img src="/channels4_profile.jpg" alt="" draggable="false" />
+        {isAligned && <span className="qibla-aligned-check"><CheckCircle2 size={20} /></span>}
+      </div>
+    </div>
   );
 }
 
 export default function QiblaPage() {
-  const [locState, setLocState]           = useState('idle'); // 'idle' | 'requesting' | 'granted' | 'denied' | 'error' | 'unsupported'
-  const [coords, setCoords]               = useState(null);
-  const [qiblaBearing, setQiblaBearing]   = useState(null);
-  const [compassState, setCompassState]   = useState('idle'); // 'idle' | 'requesting' | 'ios-prompt' | 'active' | 'denied' | 'unavailable'
-  const [heading, setHeading]             = useState(null);
-  const [sensorEvents, setSensorEvents]   = useState(0);
+  const isDesktop = !(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent));
 
-  const smoothRef   = useRef(null);
-  const cleanupRef  = useRef(null);
+  const [locationState, setLocationState] = useState('idle');
+  const [qiblaBearing, setQiblaBearing] = useState(null);
+  const [compassState, setCompassState] = useState('idle');
+  const [heading, setHeading] = useState(null);
+  const [alignment, setAlignment] = useState('unknown');
+  const cleanupRef = useRef(null);
+  const smoothRef = useRef(null);
+  const alignedRef = useRef(false);
 
-  const turnInfo = heading != null && qiblaBearing != null
-    ? calculateTurnDirection(heading, qiblaBearing)
-    : null;
-  const isAligned     = turnInfo?.direction === 'aligned';
+  const stopCompass = useCallback(() => {
+    cleanupRef.current?.();
+    cleanupRef.current = null;
+  }, []);
 
-  const sensorAvailable = compassState === 'active';
-
-  const attemptCompass = useCallback(async (withPermissionGate = false) => {
+  const startCompass = useCallback(async () => {
+    stopCompass();
+    smoothRef.current = null;
+    alignedRef.current = false;
+    setHeading(null);
+    setAlignment('unknown');
+    if (typeof window.DeviceOrientationEvent === 'undefined') {
+      setCompassState('unavailable');
+      return;
+    }
     setCompassState('requesting');
-
-    if (withPermissionGate || hasIOSPermissionGate) {
+    if (hasIOSPermissionGate) {
       try {
-        const res = await DeviceOrientationEvent.requestPermission();
-        if (res !== 'granted') { setCompassState('denied'); return; }
+        if (await DeviceOrientationEvent.requestPermission() !== 'granted') {
+          setCompassState('denied');
+          return;
+        }
       } catch {
         setCompassState('denied');
         return;
       }
     }
-
-    if (typeof window.DeviceOrientationEvent === 'undefined') {
-      setCompassState('unavailable');
-      return;
-    }
-
-    let receivedCount = 0;
-
-    const handler = (e) => {
-      let h = null;
-      if (e.webkitCompassHeading != null && !isNaN(e.webkitCompassHeading)) {
-        h = e.webkitCompassHeading;
-      } else if (e.absolute && e.alpha != null && !isNaN(e.alpha)) {
-        h = (360 - e.alpha) % 360;
-      } else if (e.alpha != null && !isNaN(e.alpha)) {
-        h = (360 - e.alpha) % 360;
-      }
-      if (h === null || isNaN(h)) return;
-
-      receivedCount++;
-      setSensorEvents(n => n + 1);
-      smoothRef.current = smoothHeading(smoothRef.current, h, 0.15);
+    let received = false;
+    const onOrientation = (event) => {
+      const rawHeading = headingFromEvent(event);
+      if (rawHeading == null) return;
+      received = true;
+      smoothRef.current = smoothHeading(smoothRef.current, rawHeading, 0.2);
       setHeading(smoothRef.current);
+      setCompassState('active');
     };
-
-    window.addEventListener('deviceorientationabsolute', handler, true);
-    window.addEventListener('deviceorientation',         handler, true);
-
-    const timer = setTimeout(() => {
-      if (receivedCount === 0) {
-        window.removeEventListener('deviceorientationabsolute', handler, true);
-        window.removeEventListener('deviceorientation',         handler, true);
+    window.addEventListener('deviceorientationabsolute', onOrientation, true);
+    window.addEventListener('deviceorientation', onOrientation, true);
+    const timeout = window.setTimeout(() => {
+      if (!received) {
+        stopCompass();
         setCompassState('unavailable');
       }
     }, SENSOR_TIMEOUT_MS);
-
     cleanupRef.current = () => {
-      window.removeEventListener('deviceorientationabsolute', handler, true);
-      window.removeEventListener('deviceorientation',         handler, true);
-      clearTimeout(timer);
+      window.removeEventListener('deviceorientationabsolute', onOrientation, true);
+      window.removeEventListener('deviceorientation', onOrientation, true);
+      window.clearTimeout(timeout);
     };
-  }, []);
+  }, [stopCompass]);
 
   const requestLocation = useCallback(() => {
-    if (!navigator.geolocation) { setLocState('unsupported'); return; }
-    setLocState('requesting');
-
+    if (!navigator.geolocation) { setLocationState('unsupported'); return; }
+    setLocationState('requesting');
     navigator.geolocation.getCurrentPosition(
-      ({ coords: { latitude: lat, longitude: lon } }) => {
-        setCoords({ lat, lon });
-        setQiblaBearing(calculateQiblaBearing(lat, lon));
-        setLocState('granted');
-        if (hasIOSPermissionGate) {
-          setCompassState('ios-prompt');
-        } else {
-          attemptCompass();
-        }
+      ({ coords }) => {
+        setQiblaBearing(calculateQiblaBearing(coords.latitude, coords.longitude));
+        setLocationState('granted');
+        setCompassState('ready');
       },
-      (err) => {
-        setLocState(err.code === 1 ? 'denied' : 'error');
-      },
-      { enableHighAccuracy: true, timeout: 12000, maximumAge: 300000 }
+      (error) => setLocationState(error.code === error.PERMISSION_DENIED ? 'denied' : 'error'),
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 300000 },
     );
-  }, [attemptCompass]);
-
-  useEffect(() => {
-    if (compassState === 'requesting' && heading !== null) {
-      setCompassState('active');
-    }
-  }, [heading, compassState]);
-
-  useEffect(() => {
-    return () => { if (cleanupRef.current) cleanupRef.current(); };
   }, []);
 
+  const angularDifference = useMemo(() => (
+    heading != null && qiblaBearing != null ? Math.abs(shortestAngleDifference(heading, qiblaBearing)) : null
+  ), [heading, qiblaBearing]);
+
   useEffect(() => {
-    if (isAligned && navigator.vibrate) navigator.vibrate([40, 60, 40]);
-  }, [isAligned]);
+    if (angularDifference == null) return;
+    const next = getAlignmentState(angularDifference, alignedRef.current, ALIGN_ENTER_THRESHOLD, ALIGN_EXIT_THRESHOLD);
+    const enteringAlignment = next === 'aligned' && !alignedRef.current;
+    alignedRef.current = next === 'aligned';
+    setAlignment(next);
+    if (enteringAlignment && navigator.vibrate) navigator.vibrate(45);
+  }, [angularDifference]);
 
-  const isStaticMode    = !sensorAvailable;
-  const discRotation    = sensorAvailable && heading != null ? -heading : 0;
-  const needleRotation  = sensorAvailable && heading != null && qiblaBearing != null
-    ? qiblaBearing - heading
-    : qiblaBearing ?? 0;
+  useEffect(() => () => stopCompass(), [stopCompass]);
 
-  if (locState === 'idle' || locState === 'requesting') {
+  if (isDesktop) {
     return (
       <main className="qibla-page qibla-centered-layout" id="main-content">
-        <div className="qibla-welcome">
-          <div className="qibla-welcome-icon" aria-hidden="true">
-            <Navigation2 size={40} />
+        <section className="qibla-error-card">
+          <div className="qibla-welcome-icon icon-error" aria-hidden="true">
+            <Compass size={34} />
           </div>
-          <h2 className="qibla-welcome-title">Find Your Qibla</h2>
+          <h1 className="qibla-welcome-title">Mobile Only</h1>
           <p className="qibla-welcome-body">
-            We need your location to calculate the accurate Qibla direction toward the
-            Kaaba in Makkah al-Mukarramah.
+            The Qibla compass requires device orientation sensors that are only available on mobile devices. Please open this app on your phone to find the Qibla direction.
           </p>
-          <div className="qibla-welcome-actions">
-            <button
-              className="btn btn-primary btn-lg"
-              onClick={requestLocation}
-              disabled={locState === 'requesting'}
-              aria-busy={locState === 'requesting'}
-            >
-              <MapPin size={18} aria-hidden="true" />
-              {locState === 'requesting' ? 'Locating…' : 'Use My Location'}
-            </button>
-          </div>
-        </div>
+        </section>
       </main>
     );
   }
 
-  if (locState === 'denied') {
-    return (
-      <main className="qibla-page qibla-centered-layout" id="main-content">
-        <div className="qibla-error-card">
-          <div className="qibla-error-icon icon-error" aria-hidden="true">
-            <WifiOff size={32} />
-          </div>
-          <h2>Location Permission Denied</h2>
-          <p>Please enable location access in your browser settings to use the compass.</p>
-          <div className="qibla-state-actions">
-            <button className="btn btn-primary" onClick={requestLocation} style={{ width: '100%' }}>
-              <RefreshCw size={16} /> Try Again
-            </button>
-          </div>
+  if (locationState !== 'granted') {
+    const hasLocationIssue = ['denied', 'error', 'unsupported'].includes(locationState);
+    return <main className="qibla-page qibla-centered-layout" id="main-content">
+      <section className={hasLocationIssue ? 'qibla-error-card' : 'qibla-welcome'}>
+        <div className={`qibla-welcome-icon${hasLocationIssue ? ' icon-error' : ''}`} aria-hidden="true">
+          {hasLocationIssue ? <TriangleAlert size={34} /> : <Navigation size={40} />}
         </div>
-      </main>
-    );
-  }
-
-  if (locState === 'error' || locState === 'unsupported') {
-    return (
-      <main className="qibla-page qibla-centered-layout" id="main-content">
-        <div className="qibla-error-card">
-          <div className="qibla-error-icon icon-error" aria-hidden="true">
-            <MapPin size={32} />
-          </div>
-          <h2>Location Unavailable</h2>
-          <p>
-            {locState === 'unsupported'
-              ? 'Your browser does not support location services.'
-              : 'Unable to determine your location. Check your GPS and try again.'}
-          </p>
-          <div className="qibla-state-actions">
-            <button className="btn btn-secondary" onClick={requestLocation} style={{ width: '100%' }}>
-              <RefreshCw size={16} /> Retry
-            </button>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
-  return (
-    <main className="qibla-page qibla-centered-layout" id="main-content" aria-label="Qibla Direction">
-      
-      {compassState === 'ios-prompt' && (
-        <div className="qibla-inline-banner qibla-banner-info" role="note" style={{ position: 'absolute', top: '80px', zIndex: 10 }}>
-          <Compass size={16} aria-hidden="true" />
-          <span>Enable compass sensor for live guidance.</span>
-          <button className="btn btn-primary btn-sm" onClick={() => attemptCompass(true)}>Enable</button>
-        </div>
-      )}
-
-      <div
-        className={['qibla-compass-wrap', isAligned ? 'compass-aligned' : ''].join(' ')}
-        role="img"
-        aria-label="Qibla compass"
-      >
-        <CompassDisc
-          rotation={discRotation}
-          qiblaBearing={qiblaBearing}
-          animate={sensorAvailable}
-          staticMode={isStaticMode}
-        />
-
-        {qiblaBearing != null && (
-          <div
-            className="qibla-needle-wrap"
-            aria-hidden="true"
-            style={{
-              transform: `translateX(-50%) rotate(${needleRotation}deg)`,
-              transition: sensorAvailable ? 'transform 0.1s linear' : 'none',
-            }}
-          >
-            <svg viewBox="0 0 24 110" className="qibla-needle-svg" overflow="visible">
-              <polygon points="12,8 16.5,95 12,104 7.5,95" fill="rgba(0,0,0,0.15)" transform="translate(1,1)" />
-              <polygon points="12,8 16.5,95 12,104 7.5,95" fill="var(--color-primary)" />
-              <polygon points="12,8 13.5,52 12,58 10.5,52" fill="rgba(255,255,255,0.25)" />
-              <circle cx="12" cy="6" r="7" fill="var(--color-gold)" />
-              <circle cx="12" cy="6" r="4" fill="#fff" opacity="0.85" />
-              <circle cx="12" cy="6" r="1.5" fill="var(--color-gold)" />
-            </svg>
-          </div>
-        )}
-
-        <div className={['qibla-center', isAligned ? 'is-aligned' : ''].join(' ')} aria-hidden="true">
-          <img src="/channels4_profile.jpg" alt="" className="qibla-logo" draggable="false" />
-        </div>
-      </div>
-
-      {compassState === 'unavailable' && qiblaBearing != null && (
-        <p className="qibla-static-desc" aria-live="polite">
-          Point the gold needle {Math.round(qiblaBearing)}° from True North using a physical compass.
+        <h1 className="qibla-welcome-title">{hasLocationIssue ? 'Location needed' : 'Find your Qibla'}</h1>
+        <p className="qibla-welcome-body">
+          {locationState === 'denied' ? 'Allow location access in browser settings, then try again. It is used only to calculate direction to Makkah.'
+            : locationState === 'unsupported' ? 'This browser cannot provide location, so a personal Qibla bearing cannot be calculated.'
+              : locationState === 'error' ? 'We could not get a reliable location. Check GPS or network access and try again.'
+                : 'Use your location to calculate the accurate direction to the Kaaba in Makkah. Your precise coordinates are not displayed.'}
         </p>
-      )}
+        <button className="btn btn-primary btn-lg" onClick={requestLocation} disabled={locationState === 'requesting'}>
+          <MapPin size={18} />{locationState === 'requesting' ? 'Finding location…' : hasLocationIssue ? 'Try again' : 'Use my location'}
+        </button>
+      </section>
+    </main>;
+  }
 
-      {sensorAvailable && sensorEvents > CALIBRATION_EVENTS && (
-        <div className="qibla-calibration" role="note" aria-live="polite">
-          <AlertTriangle size={16} aria-hidden="true" style={{ flexShrink: 0, marginTop: 2 }} />
-          <div>Move phone in a figure-8 motion to calibrate compass.</div>
-        </div>
-      )}
-    </main>
-  );
+  const liveCompass = compassState === 'active' && heading != null;
+  const status = alignment === 'aligned'
+    ? { title: 'Facing Qibla', body: 'You are within 5° of the Qibla direction.', icon: CheckCircle2 }
+    : alignment === 'near'
+      ? { title: 'Almost there', body: `${Math.round(angularDifference)}° remaining. Keep rotating slowly.`, icon: RotateCw }
+      : liveCompass
+        ? { title: 'Rotate toward Qibla', body: `${Math.round(angularDifference)}° remaining. Align the gold pointer with the top marker.`, icon: RotateCw }
+        : { title: 'Compass not active', body: 'Enable your phone compass for live direction guidance.', icon: Compass };
+  const StatusIcon = status.icon;
+
+  return <main className="qibla-page qibla-app-layout" id="main-content" aria-label="Qibla direction">
+    <CompassDial heading={liveCompass ? heading : null} qiblaBearing={qiblaBearing} alignment={alignment} />
+    <section className={`qibla-status qibla-status-${alignment}`} aria-live="polite">
+      <StatusIcon size={21} aria-hidden="true" /><div><h2>{status.title}</h2><p>{status.body}</p></div>
+    </section>
+    <section className="qibla-readings" aria-label="Qibla readings">
+      <div><span>Qibla bearing</span><strong>{Math.round(qiblaBearing)}°</strong><small>from North</small></div>
+      <div><span>Current heading</span><strong>{liveCompass ? `${Math.round(heading)}°` : '—'}</strong><small>{liveCompass ? 'live compass' : 'not available'}</small></div>
+    </section>
+    {!liveCompass && <section className="qibla-sensor-card">
+      <ShieldCheck size={19} aria-hidden="true" /><div>
+        <h2>{compassState === 'unavailable' ? 'Live compass unavailable' : compassState === 'denied' ? 'Compass permission denied' : 'Enable live compass'}</h2>
+        <p>{compassState === 'unavailable'
+          ? 'This browser did not provide a verified compass heading. Use the bearing above with a physical compass; we will not guess your direction.'
+          : 'For live guidance, keep your phone flat and allow motion and orientation access.'}</p>
+        <button className={`btn ${compassState === 'unavailable' ? 'btn-secondary' : 'btn-primary'}`} onClick={startCompass}>
+          {compassState === 'unavailable' ? <RefreshCw size={16} /> : <Compass size={16} />}{compassState === 'unavailable' ? 'Try compass again' : 'Enable compass'}
+        </button>
+      </div>
+    </section>}
+    {liveCompass && <p className="qibla-calibration" role="note"><TriangleAlert size={16} /> Keep the phone level and away from magnets or metal. If direction drifts, calibrate it using your device’s recommended method.</p>}
+  </main>;
 }

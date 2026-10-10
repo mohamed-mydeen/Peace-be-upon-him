@@ -77,6 +77,16 @@
   color: var(--color-text-primary);
 }
 
+.search-mobile-close {
+  display: none;
+  flex-shrink: 0;
+  color: var(--color-primary);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-semibold);
+  line-height: 1;
+  padding: var(--space-2);
+}
+
 .search-body {
   max-height: 400px;
   overflow-y: auto;
@@ -167,25 +177,73 @@
   margin-top: var(--space-1);
 }
 
-.search-footer {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-3) var(--space-4);
-  border-top: var(--border-width) solid var(--color-border);
-  font-size: var(--text-xs);
-  color: var(--color-text-muted);
+@media (max-width: 600px) {
+  .search-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .search-modal {
+    max-width: none;
+    border-width: var(--border-width) 0 0;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 -12px 36px rgba(0, 0, 0, 0.18);
+    animation: search-sheet-up 220ms ease both;
+  }
+
+  .search-modal::before {
+    content: '';
+    display: block;
+    width: 36px;
+    height: 4px;
+    margin: 10px auto 0;
+    border-radius: var(--radius-full);
+    background: var(--color-border);
+  }
+
+  .search-input-wrap {
+    gap: var(--space-2);
+    padding: 14px var(--space-4) 12px;
+  }
+
+  .search-input {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .search-mobile-close {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+  }
+
+  .search-body {
+    max-height: min(54svh, 420px);
+    padding: var(--space-2) var(--space-3) calc(var(--space-4) + env(safe-area-inset-bottom));
+  }
+
+  .search-section-label {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  .search-result-item {
+    min-height: 58px;
+    padding: var(--space-3);
+  }
+
+  .search-result-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+  }
+
+  .search-result-meta,
+  .search-result-excerpt {
+    max-width: calc(100vw - 116px);
+  }
 }
 
-.search-hint-key {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 6px;
-  border-radius: 4px;
-  border: var(--border-width) solid var(--color-border);
-  background: var(--color-bg-secondary);
-  font-family: var(--font-mono);
-  font-size: 11px;
-  color: var(--color-text-secondary);
-  margin-right: 4px;
+@keyframes search-sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
 }
