@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Peace Be Upon Him</string>
+    <string name="title_activity_main">Peace Be Upon Him</string>
+    <string name="package_name">com.peacebeuponhim.app</string>
+    <string name="custom_url_scheme">com.peacebeuponhim.app</string>
+</resources>
