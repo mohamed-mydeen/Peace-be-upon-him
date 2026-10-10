@@ -357,3 +357,102 @@
   }
 
 }
+
+/* iOS Style Confirmation Modal */
+.ios-confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.ios-confirm-dialog {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  width: 270px;
+  border-radius: 14px;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.15);
+  animation: scaleIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.ios-confirm-content {
+  padding: 20px 16px;
+}
+
+.ios-confirm-content h4 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 600;
+  color: #000;
+}
+
+.ios-confirm-content p {
+  margin: 0;
+  font-size: 13px;
+  color: #3c3c43;
+  line-height: 1.3;
+}
+
+.ios-confirm-actions {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid rgba(60, 60, 67, 0.29);
+}
+
+.ios-confirm-btn {
+  background: transparent;
+  border: none;
+  width: 100%;
+  padding: 12px;
+  font-size: 17px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ios-confirm-btn:active {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.ios-btn-delete {
+  color: #ff3b30;
+  font-weight: 500;
+  border-bottom: 1px solid rgba(60, 60, 67, 0.29);
+}
+
+.ios-btn-cancel {
+  color: #007aff;
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* Dark mode overrides if any */
+@media (prefers-color-scheme: dark) {
+  .ios-confirm-dialog {
+    background: rgba(30, 30, 30, 0.95);
+  }
+  .ios-confirm-content h4 { color: #fff; }
+  .ios-confirm-content p { color: #ebebf5; opacity: 0.6; }
+  .ios-confirm-actions, .ios-btn-delete { border-color: rgba(84, 84, 88, 0.65); }
+  .ios-btn-delete { color: #ff453a; }
+  .ios-btn-cancel { color: #0a84ff; }
+}

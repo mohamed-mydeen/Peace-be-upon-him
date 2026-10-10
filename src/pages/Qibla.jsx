@@ -92,7 +92,7 @@ export default function QiblaPage() {
     cleanupRef.current = null;
   }, []);
 
-  const startCompass = useCallback(async () => {
+  const startCompass = useCallback(async (skipPermission = false) => {
     stopCompass();
     smoothRef.current = null;
     alignedRef.current = false;
@@ -103,7 +103,7 @@ export default function QiblaPage() {
       return;
     }
     setCompassState('requesting');
-    if (hasIOSPermissionGate) {
+    if (hasIOSPermissionGate && !skipPermission) {
       try {
         if (await DeviceOrientationEvent.requestPermission() !== 'granted') {
           setCompassState('denied');
@@ -138,19 +138,33 @@ export default function QiblaPage() {
     };
   }, [stopCompass]);
 
-  const requestLocation = useCallback(() => {
+  const requestLocation = useCallback(async () => {
     if (!navigator.geolocation) { setLocationState('unsupported'); return; }
+    
+    let compassPerm = 'unknown';
+    if (hasIOSPermissionGate) {
+      try {
+        compassPerm = await DeviceOrientationEvent.requestPermission();
+      } catch {
+        compassPerm = 'denied';
+      }
+    }
+
     setLocationState('requesting');
     navigator.geolocation.getCurrentPosition(
       ({ coords }) => {
         setQiblaBearing(calculateQiblaBearing(coords.latitude, coords.longitude));
         setLocationState('granted');
-        setCompassState('ready');
+        if (compassPerm !== 'denied') {
+          startCompass(true);
+        } else {
+          setCompassState('denied');
+        }
       },
       (error) => setLocationState(error.code === error.PERMISSION_DENIED ? 'denied' : 'error'),
       { enableHighAccuracy: true, timeout: 12000, maximumAge: 300000 },
     );
-  }, []);
+  }, [startCompass]);
 
   const angularDifference = useMemo(() => (
     heading != null && qiblaBearing != null ? Math.abs(shortestAngleDifference(heading, qiblaBearing)) : null

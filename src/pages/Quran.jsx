@@ -163,6 +163,7 @@ function SurahDetail({ surahId }) {
   const [screenshottingVerse, setScreenshottingVerse] = useState('');
   const [screenshotError, setScreenshotError] = useState('');
   const [downloadState, setDownloadState] = useState({ status: 'none', progress: 0 });
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const audioRef = useRef(null);
 
   useEffect(() => {
@@ -180,9 +181,12 @@ function SurahDetail({ surahId }) {
   };
   
   const handleDeleteDownload = () => {
-    if (window.confirm('Remove downloaded audio and text for this Surah?')) {
-      deleteSurahDownload(surahId, selectedReciterId);
-    }
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    deleteSurahDownload(surahId, selectedReciterId);
+    setShowDeleteConfirm(false);
   };
 
   useEffect(() => {
@@ -335,6 +339,22 @@ function SurahDetail({ surahId }) {
   return (
     <main className="page-wrapper fade-in" id="main-content">
       <div className="container">
+        {/* iOS Confirm Modal */}
+        {showDeleteConfirm && (
+          <div className="ios-confirm-overlay" onClick={() => setShowDeleteConfirm(false)}>
+            <div className="ios-confirm-dialog" onClick={e => e.stopPropagation()}>
+              <div className="ios-confirm-content">
+                <h4>Remove Download</h4>
+                <p>Are you sure you want to remove downloaded audio and text for this Surah?</p>
+              </div>
+              <div className="ios-confirm-actions">
+                <button className="ios-confirm-btn ios-btn-delete" onClick={confirmDelete}>Remove</button>
+                <button className="ios-confirm-btn ios-btn-cancel" onClick={() => setShowDeleteConfirm(false)}>Cancel</button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Back */}
         <Link to="/quran" className="back-link">
           <ArrowLeft size={16} /> All Surahs

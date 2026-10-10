@@ -59,8 +59,18 @@ export async function downloadSurah(surahId, reciterId) {
     let page = 1;
     let totalPages = 1;
     do {
-      const data = await getAyahs(surahId, { page });
-      totalPages = data.pagination?.total_pages || 1;
+      let success = false;
+      for (let retries = 0; retries < 3; retries++) {
+        try {
+          const data = await getAyahs(surahId, { page });
+          totalPages = data.pagination?.total_pages || 1;
+          success = true;
+          break;
+        } catch (e) {
+          await new Promise(r => setTimeout(r, 1000));
+        }
+      }
+      if (!success) throw new Error(`Failed to fetch text for page ${page}`);
       page++;
     } while (page <= totalPages);
 
@@ -84,9 +94,17 @@ export async function downloadSurah(surahId, reciterId) {
         const req = new Request(file.url);
         const cachedRes = await audioCache.match(req);
         if (!cachedRes) {
-          // Add to cache
-          const res = await fetch(req);
-          if (!res.ok) throw new Error(`Failed to fetch audio: ${file.url}`);
+          // Add to cache with retries
+          let res = null;
+          for (let retries = 0; retries < 3; retries++) {
+            try {
+              res = await fetch(req.clone());
+              if (res.ok) break;
+            } catch (e) {
+              await new Promise(r => setTimeout(r, 1000));
+            }
+          }
+          if (!res || !res.ok) throw new Error(`Failed to fetch audio: ${file.url}`);
           await audioCache.put(req, res);
         }
         completed++;
