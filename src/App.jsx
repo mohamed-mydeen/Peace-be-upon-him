@@ -35,7 +35,6 @@ import Dua from './pages/Dua';
 import Dhikr from './pages/Dhikr';
 import Explore from './pages/Explore';
 import Library from './pages/Library';
-import YouTubePage from './pages/YouTube';
 import About from './pages/About';
 import AfterSalah from './pages/AfterSalah';
 import Settings from './pages/Settings';
@@ -99,9 +98,12 @@ function useDisableBrowserZoomAndCopy() {
 
 export default function App() {
   const location = useLocation();
-  const [hasStarted, setHasStarted] = useState(false);
+  const [hasStarted, setHasStarted] = useState(() => {
+    return sessionStorage.getItem('hasStarted') === 'true';
+  });
 
   const startApp = () => {
+    sessionStorage.setItem('hasStarted', 'true');
     setHasStarted(true);
   };
 
@@ -145,7 +147,6 @@ export default function App() {
                         <Route path="/explore" element={<Explore />} />
                         <Route path="/explore/:topic" element={<Explore />} />
                         <Route path="/library" element={<Library />} />
-                        <Route path="/youtube" element={<YouTubePage />} />
                         <Route path="/about" element={<About />} />
                         <Route path="/after-salah" element={<AfterSalah />} />
                         <Route path="/settings" element={<Settings />} />

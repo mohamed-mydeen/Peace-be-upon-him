@@ -258,9 +258,6 @@ export default function Home() {
             <h2 className="hm-section-title">Latest Videos</h2>
             <p className="hm-section-sub tamil-text">புதிய வீடியோக்கள்</p>
           </div>
-          <Link to="/youtube" className="hm-link-sm" id="view-all-videos">
-            View all <ChevronRight size={12} />
-          </Link>
         </div>
 
         {!isConfigured

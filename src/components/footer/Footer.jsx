@@ -19,7 +19,6 @@ const FOOTER_LINKS = {
   ],
   Information: [
     { to: '/about', label: 'About Us' },
-    { to: '/youtube', label: 'YouTube Channel' },
     { to: '/about#privacy', label: 'Privacy Policy' },
     { to: '/about#terms', label: 'Terms of Use' },
     { to: '/about#contact', label: 'Contact' },
